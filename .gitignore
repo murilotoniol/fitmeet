@@ -1,0 +1,12 @@
+.idea/
+*.iml
+*.iws
+*.ipr
+
+.vscode/
+
+Thumbs.db
+desktop.ini
+.DS_Store
+
+*.log
