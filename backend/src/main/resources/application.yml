@@ -1,3 +1,15 @@
 spring:
   application:
     name: desafio-backend
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bootcamp_db
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.xml
