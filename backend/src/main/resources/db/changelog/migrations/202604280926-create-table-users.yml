@@ -1,0 +1,50 @@
+databaseChangeLog:
+  - changeSet:
+      id: "01-create-table-users"
+      author: "muriloBesson"
+      changes:
+        - createTable:
+            tableName: "users"
+            columns:
+              - column:
+                  name: "id"
+                  type: "UUID"
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: "name"
+                  type: "VARCHAR(255)"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "email"
+                  type: "VARCHAR(255)"
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: "cpf"
+                  type: "VARCHAR(14)"
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: "password"
+                  type: "VARCHAR(255)"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "avatar"
+                  type: "VARCHAR(255)"
+              - column:
+                  name: "xp"
+                  type: "INT"
+                  defaultValueNumeric: 0
+              - column:
+                  name: "level"
+                  type: "INT"
+                  defaultValueNumeric: 1
+              - column:
+                  name: "deleted_at"
+                  type: "TIMESTAMP"

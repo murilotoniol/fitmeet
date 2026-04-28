@@ -38,10 +38,10 @@ public class User {
     private String avatar;
 
     @Column(name = "xp", nullable = false)
-    private Integer xp;
+    private Integer xp = 0;
 
     @Column(name = "level", nullable = false)
-    private Integer level;
+    private Integer level = 1;
 
     @Column(name = "deleted_at")
     private Date deletedAt;
