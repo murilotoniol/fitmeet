@@ -43,7 +43,7 @@ public class User {
     @Column(name = "level", nullable = false)
     private Integer level;
 
-    @Column(name = "deletedAt")
+    @Column(name = "deleted_at")
     private Date deletedAt;
 
 }
