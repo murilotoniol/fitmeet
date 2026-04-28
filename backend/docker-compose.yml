@@ -2,15 +2,28 @@ services:
   db:
     image: postgres:16-alpine
     container_name: postgres-bootcamp
-    restart: always
     environment:
-      POSTGRES_DB: bootcamp_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "5432:5432"
+      - "${DB_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  localstack:
+    image: localstack/localstack:4.0.0
+    container_name: localstack-bootcamp
+    environment:
+      - SERVICES=s3
+      - AWS_DEFAULT_REGION=${AWS_REGION}
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    ports:
+      - "4566:4566"
+    volumes:
+      - localstack_data:/var/lib/localstack
+      - /var/run/docker.sock:/var/run/docker.sock
+
 volumes:
   postgres_data:
+  localstack_data:
