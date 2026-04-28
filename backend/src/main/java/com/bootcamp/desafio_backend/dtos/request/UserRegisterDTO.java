@@ -1,4 +1,4 @@
-package com.bootcamp.desafio_backend.dtos;
+package com.bootcamp.desafio_backend.dtos.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

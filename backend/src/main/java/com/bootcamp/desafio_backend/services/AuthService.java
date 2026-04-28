@@ -1,8 +1,8 @@
 package com.bootcamp.desafio_backend.services;
 
-import com.bootcamp.desafio_backend.dtos.UserRegisterDTO;
+import com.bootcamp.desafio_backend.dtos.request.UserRegisterDTO;
 import com.bootcamp.desafio_backend.models.User;
-import com.bootcamp.desafio_backend.repository.UserRepository;
+import com.bootcamp.desafio_backend.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;

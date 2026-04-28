@@ -1,6 +1,6 @@
 package com.bootcamp.desafio_backend.controllers;
 
-import com.bootcamp.desafio_backend.dtos.UserRegisterDTO;
+import com.bootcamp.desafio_backend.dtos.request.UserRegisterDTO;
 import com.bootcamp.desafio_backend.services.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
