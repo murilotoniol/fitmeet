@@ -1,6 +1,6 @@
 package com.bootcamp.desafio_backend.services;
 
-import com.bootcamp.desafio_backend.dtos.request.UserRegisterDTO;
+import com.bootcamp.desafio_backend.dtos.request.RegisterRequest;
 import com.bootcamp.desafio_backend.models.User;
 import com.bootcamp.desafio_backend.repositories.UserRepository;
 import jakarta.transaction.Transactional;
@@ -20,7 +20,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void register(UserRegisterDTO dto) {
+    public void register(RegisterRequest dto) {
 
         User newUser = new User();
         BeanUtils.copyProperties(dto, newUser);

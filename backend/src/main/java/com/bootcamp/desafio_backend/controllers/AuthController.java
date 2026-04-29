@@ -1,6 +1,6 @@
 package com.bootcamp.desafio_backend.controllers;
 
-import com.bootcamp.desafio_backend.dtos.request.UserRegisterDTO;
+import com.bootcamp.desafio_backend.dtos.request.RegisterRequest;
 import com.bootcamp.desafio_backend.services.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -21,7 +21,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@Valid @RequestBody UserRegisterDTO dto) {
+    public ResponseEntity<String> register(@Valid @RequestBody RegisterRequest dto) {
         authService.register(dto);
 
         return ResponseEntity.status(HttpStatus.CREATED)

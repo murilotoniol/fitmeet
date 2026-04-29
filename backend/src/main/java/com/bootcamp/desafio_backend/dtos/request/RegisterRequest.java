@@ -2,9 +2,10 @@ package com.bootcamp.desafio_backend.dtos.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.br.CPF;
 
-public record UserRegisterDTO(
+public record RegisterRequest(
 
     @NotBlank(message = "Informe os campos obrigatórios corretamente.")
     String name,
