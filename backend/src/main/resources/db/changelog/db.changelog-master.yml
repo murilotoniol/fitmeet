@@ -15,3 +15,5 @@ databaseChangeLog:
       file: db/changelog/migrations/007-create-table-achievements.yml
   - include:
       file: db/changelog/migrations/008-create-table-user-achievements.yml
+  - include:
+      file: db/changelog/migrations/009-seed-activity-types-and-achievements.yml

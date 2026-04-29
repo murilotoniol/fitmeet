@@ -1,0 +1,116 @@
+databaseChangeLog:
+  - changeSet:
+      id: "09-seed-activity-types"
+      author: "muriloBesson"
+      changes:
+        - insert:
+            tableName: "activity_types"
+            columns:
+              - column:
+                  name: "id"
+                  valueComputed: "gen_random_uuid()"
+              - column:
+                  name: "name"
+                  value: "Esporte"
+              - column:
+                  name: "description"
+                  value: "Atividades relacionadas a práticas esportivas e exercícios físicos"
+              - column:
+                  name: "image"
+                  value: ""
+        - insert:
+            tableName: "activity_types"
+            columns:
+              - column:
+                  name: "id"
+                  valueComputed: "gen_random_uuid()"
+              - column:
+                  name: "name"
+                  value: "Tecnologia"
+              - column:
+                  name: "description"
+                  value: "Atividades relacionadas a tecnologia, programação e inovação"
+              - column:
+                  name: "image"
+                  value: ""
+        - insert:
+            tableName: "activity_types"
+            columns:
+              - column:
+                  name: "id"
+                  valueComputed: "gen_random_uuid()"
+              - column:
+                  name: "name"
+                  value: "Educação"
+              - column:
+                  name: "description"
+                  value: "Atividades relacionadas a ensino, aprendizado e capacitação"
+              - column:
+                  name: "image"
+                  value: ""
+        - insert:
+            tableName: "activity_types"
+            columns:
+              - column:
+                  name: "id"
+                  valueComputed: "gen_random_uuid()"
+              - column:
+                  name: "name"
+                  value: "Música"
+              - column:
+                  name: "description"
+                  value: "Atividades relacionadas a música, instrumentos e apresentações musicais"
+              - column:
+                  name: "image"
+                  value: ""
+        - insert:
+            tableName: "activity_types"
+            columns:
+              - column:
+                  name: "id"
+                  valueComputed: "gen_random_uuid()"
+              - column:
+                  name: "name"
+                  value: "Games"
+              - column:
+                  name: "description"
+                  value: "Atividades relacionadas a jogos eletrônicos e competições de e-sports"
+              - column:
+                  name: "image"
+                  value: ""
+        - insert:
+            tableName: "activity_types"
+            columns:
+              - column:
+                  name: "id"
+                  valueComputed: "gen_random_uuid()"
+              - column:
+                  name: "name"
+                  value: "Voluntariado"
+              - column:
+                  name: "description"
+                  value: "Atividades relacionadas a trabalho voluntário e ações sociais"
+              - column:
+                  name: "image"
+                  value: ""
+
+  - changeSet:
+      id: "09-seed-achievements"
+      author: "muriloBesson"
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists:
+            tableName: "achievements"
+      changes:
+        - insert:
+            tableName: "achievements"
+            columns:
+              - column:
+                  name: "id"
+                  valueComputed: "gen_random_uuid()"
+              - column:
+                  name: "name"
+                  value: "Primeiro Check-in"
+              - column:
+                  name: "criterion"
+                  value: "Realizar o primeiro check-in em uma atividade"
