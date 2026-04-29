@@ -1,0 +1,46 @@
+databaseChangeLog:
+  - changeSet:
+      id: "06-create-table-activity-participants"
+      author: "muriloBesson"
+      changes:
+        - createTable:
+            tableName: "activity_participants"
+            columns:
+              - column:
+                  name: "id"
+                  type: "UUID"
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: "activity_id"
+                  type: "UUID"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "user_id"
+                  type: "UUID"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "approved"
+                  type: "BOOLEAN"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "confirmed_at"
+                  type: "TIMESTAMP"
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: "activity_participants"
+            baseColumnNames: "activity_id"
+            referencedTableName: "activities"
+            referencedColumnNames: "id"
+            constraintName: "fk_activity_participants_activity_id"
+        - addForeignKeyConstraint:
+            baseTableName: "activity_participants"
+            baseColumnNames: "user_id"
+            referencedTableName: "users"
+            referencedColumnNames: "id"
+            constraintName: "fk_activity_participants_user_id"

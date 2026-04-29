@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: "07-create-table-achievements"
+      author: "muriloBesson"
+      changes:
+        - createTable:
+            tableName: "achievements"
+            columns:
+              - column:
+                  name: "id"
+                  type: "UUID"
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: "name"
+                  type: "VARCHAR(255)"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "criterion"
+                  type: "VARCHAR(255)"
+                  constraints:
+                    nullable: false

@@ -1,0 +1,73 @@
+databaseChangeLog:
+  - changeSet:
+      id: "04-create-table-activities"
+      author: "muriloBesson"
+      changes:
+        - createTable:
+            tableName: "activities"
+            columns:
+              - column:
+                  name: "id"
+                  type: "UUID"
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: "title"
+                  type: "VARCHAR(255)"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "description"
+                  type: "VARCHAR(255)"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "type_id"
+                  type: "UUID"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "confirmation_code"
+                  type: "VARCHAR(255)"
+              - column:
+                  name: "image"
+                  type: "VARCHAR(255)"
+              - column:
+                  name: "scheduled_date"
+                  type: "TIMESTAMP"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "created_at"
+                  type: "TIMESTAMP"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "deleted_at"
+                  type: "TIMESTAMP"
+              - column:
+                  name: "completed_at"
+                  type: "TIMESTAMP"
+              - column:
+                  name: "is_private"
+                  type: "BOOLEAN"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "creator_id"
+                  type: "UUID"
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: "activities"
+            baseColumnNames: "type_id"
+            referencedTableName: "activity_types"
+            referencedColumnNames: "id"
+            constraintName: "fk_activities_type_id"
+        - addForeignKeyConstraint:
+            baseTableName: "activities"
+            baseColumnNames: "creator_id"
+            referencedTableName: "users"
+            referencedColumnNames: "id"
+            constraintName: "fk_activities_creator_id"
