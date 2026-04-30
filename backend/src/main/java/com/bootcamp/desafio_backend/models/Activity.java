@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -39,16 +39,16 @@ public class Activity {
     private String image;
 
     @Column(name = "scheduled_date", nullable = false)
-    private Date scheduledDate;
+    private LocalDateTime scheduledDate;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "deleted_at")
-    private Date deletedAt;
+    private LocalDateTime deletedAt;
 
     @Column(name = "completed_at")
-    private Date completedAt;
+    private LocalDateTime completedAt;
 
     @Column(name = "is_private", nullable = false)
     private boolean isPrivate;

@@ -25,6 +25,8 @@ public record CreateActivityRequest(
         @FutureOrPresent(message = "A data deve ser no presente ou futuro.")
         Date scheduleDate,
 
+        ActivityAddressRequest address,
+
         Boolean isPrivate
 ) {
 }

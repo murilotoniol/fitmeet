@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -33,6 +33,6 @@ public class ActivityParticipant {
     @Column(name = "approved", nullable = false)
     private Boolean approved;
 
-    @Column(name = "confirmed_at", nullable = false, updatable = false)
-    private Date confirmedAt;
+    @Column(name = "confirmed_at")
+    private LocalDateTime confirmedAt;
 }
