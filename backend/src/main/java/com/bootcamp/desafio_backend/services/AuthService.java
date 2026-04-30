@@ -9,6 +9,7 @@ import com.bootcamp.desafio_backend.exceptions.ErrorCode;
 import com.bootcamp.desafio_backend.models.User;
 import com.bootcamp.desafio_backend.repositories.UserRepository;
 
+import com.bootcamp.desafio_backend.security.JwtService;
 import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
