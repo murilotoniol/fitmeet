@@ -20,6 +20,18 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
+    private UserResponse toUserResponse(User user) {
+        return new UserResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getCpf(),
+                user.getAvatar(),
+                user.getXp(),
+                user.getLevel()
+        );
+    }
+
     public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -27,7 +39,15 @@ public class AuthService {
     }
 
     @Transactional
-    public void register(RegisterRequest request) {
+    public AuthResponse register(RegisterRequest request) {
+
+        if (userRepository.existsByEmail(request.email())) {
+            throw new BusinessException(ErrorCode.E3);
+        }
+
+        if (userRepository.existsByCpf(request.cpf())) {
+            throw new BusinessException(ErrorCode.E3);
+        }
 
         User newUser = new User();
         newUser.setName(request.name());
@@ -35,7 +55,11 @@ public class AuthService {
         newUser.setCpf(request.cpf());
         newUser.setPassword(passwordEncoder.encode(request.password()));
 
-        userRepository.save(newUser);
+        User savedUser = userRepository.save(newUser);
+
+        String token = jwtService.generateToken(savedUser);
+
+        return new AuthResponse(token, toUserResponse(savedUser));
     }
 
     public AuthResponse signIn(SignInRequest request) {
@@ -50,17 +74,6 @@ public class AuthService {
         }
 
         String token = jwtService.generateToken(user);
-
-        UserResponse userResponse = new UserResponse(
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getCpf(),
-                user.getAvatar(),
-                user.getXp(),
-                user.getLevel()
-        );
-
-        return new AuthResponse(token, userResponse);
+        return new AuthResponse(token, toUserResponse(user));
     }
 }
