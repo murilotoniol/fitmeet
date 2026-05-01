@@ -11,3 +11,4 @@ desktop.ini
 
 *.log
 .env
+out/
