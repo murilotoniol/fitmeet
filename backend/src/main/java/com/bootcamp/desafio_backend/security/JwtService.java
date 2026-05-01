@@ -3,6 +3,8 @@ package com.bootcamp.desafio_backend.security;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
+import com.bootcamp.desafio_backend.exceptions.BusinessException;
+import com.bootcamp.desafio_backend.exceptions.ErrorCode;
 import com.bootcamp.desafio_backend.models.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -50,7 +52,7 @@ public class JwtService {
                     .getSubject();
 
         } catch (Exception exception) {
-            throw new RuntimeException("Token JWT inválido ou expirado", exception);
+            throw new BusinessException(ErrorCode.E19);
         }
     }
 
