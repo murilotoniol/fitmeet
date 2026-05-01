@@ -21,7 +21,8 @@ public enum ErrorCode {
     E16("Apenas o criador da atividade pode aprovar ou negar participantes.", HttpStatus.FORBIDDEN),
     E17("Apenas o criador da atividade pode concluí-la.", HttpStatus.FORBIDDEN),
     E18("Não é possível cancelar sua inscrição, pois sua presença já foi confirmada.", HttpStatus.UNPROCESSABLE_CONTENT),
-    E19("Autenticação necessária.", HttpStatus.UNAUTHORIZED);
+    E19("Autenticação necessária.", HttpStatus.UNAUTHORIZED),
+    E20("Erro inesperado.", HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final String message;
     private final HttpStatus status;
