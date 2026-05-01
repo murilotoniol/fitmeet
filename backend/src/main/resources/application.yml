@@ -17,5 +17,5 @@ spring:
     import: optional:file:.env
 
 jwt:
-  secret: ${JWT_SECRET}
-  expiration: ${JWT_EXPIRATION}
+  secret: ${JWT_SECRET:change-this-secret}
+  expiration: ${JWT_EXPIRATION:86400000}
