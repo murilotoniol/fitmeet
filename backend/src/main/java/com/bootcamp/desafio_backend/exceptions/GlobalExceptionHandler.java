@@ -39,4 +39,19 @@ public class GlobalExceptionHandler {
                 .status(errorCode.getStatus())
                 .body(response);
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handleException(Exception exception) {
+        ErrorCode errorCode = ErrorCode.E20;
+
+        ErrorResponse response = new ErrorResponse(
+                errorCode.name(),
+                errorCode.getMessage(),
+                LocalDateTime.now()
+        );
+
+        return ResponseEntity
+                .status(errorCode.getStatus())
+                .body(response);
+    }
 }
