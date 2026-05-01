@@ -30,8 +30,6 @@ databaseChangeLog:
               - column:
                   name: "confirmed_at"
                   type: "TIMESTAMP"
-                  constraints:
-                    nullable: false
         - addForeignKeyConstraint:
             baseTableName: "activity_participants"
             baseColumnNames: "activity_id"
