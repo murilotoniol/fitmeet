@@ -68,6 +68,10 @@ public class AuthService {
         User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new BusinessException(ErrorCode.E4));
 
+        if (!user.isActive()) {
+            throw new BusinessException(ErrorCode.E6);
+        }
+
         boolean passwordMatches = passwordEncoder.matches(request.password(), user.getPassword());
 
         if (!passwordMatches) {
