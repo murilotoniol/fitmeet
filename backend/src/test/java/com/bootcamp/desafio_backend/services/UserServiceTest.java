@@ -114,6 +114,15 @@ class UserServiceTest {
     }
 
     @Test
+    void getUserPreferences_EmptyList() {
+        when(preferenceRepository.findByUserId(userId)).thenReturn(List.of());
+
+        List<PreferenceResponse> responses = userService.getUserPreferences(userId);
+
+        assertTrue(responses.isEmpty());
+    }
+
+    @Test
     void definePreferences_Success() {
         UUID typeId = UUID.randomUUID();
         List<UUID> typeIds = List.of(typeId);
@@ -146,6 +155,20 @@ class UserServiceTest {
     }
 
     @Test
+    void definePreferences_UserNotFound() {
+        DefinePreferencesRequest request = new DefinePreferencesRequest(List.of(UUID.randomUUID()));
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        BusinessException exception = assertThrows(BusinessException.class, () ->
+                userService.definePreferences(userId, request));
+        assertEquals(ErrorCode.E4, exception.getErrorCode());
+
+        verify(preferenceRepository, never()).deleteByUserId(any());
+        verify(preferenceRepository, never()).saveAll(any());
+    }
+
+    @Test
     void updateAvatar_Success() throws Exception {
         MockMultipartFile file = new MockMultipartFile("file", "avatar.png", "image/png", "dummy image data".getBytes());
         when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
@@ -164,6 +187,24 @@ class UserServiceTest {
         
         BusinessException exception = assertThrows(BusinessException.class, () -> userService.updateAvatar(userId, file));
         assertEquals(ErrorCode.E2, exception.getErrorCode());
+    }
+
+    @Test
+    void updateAvatar_EmptyFile() {
+        MockMultipartFile file = new MockMultipartFile("file", new byte[0]);
+
+        BusinessException exception = assertThrows(BusinessException.class, () -> userService.updateAvatar(userId, file));
+        assertEquals(ErrorCode.E2, exception.getErrorCode());
+    }
+
+    @Test
+    void updateAvatar_UserNotFound() {
+        MockMultipartFile file = new MockMultipartFile("file", "avatar.png", "image/png", "dummy image data".getBytes());
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        BusinessException exception = assertThrows(BusinessException.class, () -> userService.updateAvatar(userId, file));
+        assertEquals(ErrorCode.E4, exception.getErrorCode());
     }
 
     @Test
@@ -203,5 +244,15 @@ class UserServiceTest {
 
         assertNotNull(mockUser.getDeletedAt());
         verify(userRepository).save(mockUser);
+    }
+
+    @Test
+    void deactivateUser_UserNotFound() {
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        BusinessException exception = assertThrows(BusinessException.class, () -> userService.deactivateUser(userId));
+        assertEquals(ErrorCode.E4, exception.getErrorCode());
+
+        verify(userRepository, never()).save(any());
     }
 }
