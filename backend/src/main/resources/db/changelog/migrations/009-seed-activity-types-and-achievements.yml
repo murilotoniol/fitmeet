@@ -122,6 +122,18 @@ databaseChangeLog:
                   valueComputed: "gen_random_uuid()"
               - column:
                   name: "name"
+                  value: "Primeiro check-in em tecnologia"
+              - column:
+                  name: "criterion"
+                  value: "Realizar o primeiro check-in em uma atividade de tecnologia"
+        - insert:
+            tableName: "achievements"
+            columns:
+              - column:
+                  name: "id"
+                  valueComputed: "gen_random_uuid()"
+              - column:
+                  name: "name"
                   value: "Primeira atividade criada"
               - column:
                   name: "criterion"
@@ -150,3 +162,27 @@ databaseChangeLog:
               - column:
                   name: "criterion"
                   value: "Alcançar o nível 7 de experiência"
+        - insert:
+            tableName: "achievements"
+            columns:
+              - column:
+                  name: "id"
+                  valueComputed: "gen_random_uuid()"
+              - column:
+                  name: "name"
+                  value: "Alcançou level 77"
+              - column:
+                  name: "criterion"
+                  value: "Alcançar o nível 77 de experiência"
+        - insert:
+            tableName: "achievements"
+            columns:
+              - column:
+                  name: "id"
+                  valueComputed: "gen_random_uuid()"
+              - column:
+                  name: "name"
+                  value: "Alcançou level 100"
+              - column:
+                  name: "criterion"
+                  value: "Alcançar o nível 100 de experiência"
