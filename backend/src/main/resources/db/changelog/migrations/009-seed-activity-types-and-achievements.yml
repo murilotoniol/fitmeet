@@ -114,3 +114,39 @@ databaseChangeLog:
               - column:
                   name: "criterion"
                   value: "Realizar o primeiro check-in em uma atividade"
+        - insert:
+            tableName: "achievements"
+            columns:
+              - column:
+                  name: "id"
+                  valueComputed: "gen_random_uuid()"
+              - column:
+                  name: "name"
+                  value: "Primeira atividade criada"
+              - column:
+                  name: "criterion"
+                  value: "Criar primeira atividade"
+        - insert:
+            tableName: "achievements"
+            columns:
+              - column:
+                  name: "id"
+                  valueComputed: "gen_random_uuid()"
+              - column:
+                  name: "name"
+                  value: "Primeira atividade concluída"
+              - column:
+                  name: "criterion"
+                  value: "Concluir primeira atividade"
+        - insert:
+            tableName: "achievements"
+            columns:
+              - column:
+                  name: "id"
+                  valueComputed: "gen_random_uuid()"
+              - column:
+                  name: "name"
+                  value: "Alcançou level 7"
+              - column:
+                  name: "criterion"
+                  value: "Alcançar o nível 7 de experiência"
