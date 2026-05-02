@@ -1,6 +1,5 @@
 package com.bootcamp.desafio_backend.controllers;
 
-import com.bootcamp.desafio_backend.dtos.request.DefinePreferencesRequest;
 import com.bootcamp.desafio_backend.dtos.request.UpdateUserRequest;
 import com.bootcamp.desafio_backend.dtos.response.AvatarResponse;
 import com.bootcamp.desafio_backend.dtos.response.MessageResponse;
@@ -12,6 +11,7 @@ import com.bootcamp.desafio_backend.services.UserService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/user")
@@ -52,8 +53,8 @@ public class UserController {
     @PostMapping("/preferences/define")
     public ResponseEntity<MessageResponse> definePreferences(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @Valid @RequestBody DefinePreferencesRequest request) {
-        userService.definePreferences(userDetails.getUser().getId(), request);
+            @RequestBody List<UUID> activityTypeIds) {
+        userService.definePreferences(userDetails.getUser().getId(), activityTypeIds);
         return ResponseEntity.ok(new MessageResponse("Preferencias atualizadas com sucesso"));
     }
 

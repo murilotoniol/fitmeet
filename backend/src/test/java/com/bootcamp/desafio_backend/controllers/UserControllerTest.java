@@ -1,6 +1,5 @@
 package com.bootcamp.desafio_backend.controllers;
 
-import com.bootcamp.desafio_backend.dtos.request.DefinePreferencesRequest;
 import com.bootcamp.desafio_backend.dtos.request.UpdateUserRequest;
 import com.bootcamp.desafio_backend.dtos.response.AchievementResponse;
 import com.bootcamp.desafio_backend.dtos.response.AvatarResponse;
@@ -95,7 +94,7 @@ class UserControllerTest {
 
     @Test
     void definePreferences_ReturnsOk() {
-        DefinePreferencesRequest request = new DefinePreferencesRequest(List.of(UUID.randomUUID()));
+        List<UUID> request = List.of(UUID.randomUUID());
 
         ResponseEntity<MessageResponse> response = userController.definePreferences(userDetails, request);
 

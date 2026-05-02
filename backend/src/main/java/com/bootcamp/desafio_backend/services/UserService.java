@@ -1,6 +1,5 @@
 package com.bootcamp.desafio_backend.services;
 
-import com.bootcamp.desafio_backend.dtos.request.DefinePreferencesRequest;
 import com.bootcamp.desafio_backend.dtos.request.UpdateUserRequest;
 import com.bootcamp.desafio_backend.dtos.response.AchievementResponse;
 import com.bootcamp.desafio_backend.dtos.response.AvatarResponse;
@@ -82,11 +81,14 @@ public class UserService {
     }
 
     @Transactional
-    public void definePreferences(UUID userId, DefinePreferencesRequest request) {
+    public void definePreferences(UUID userId, List<UUID> activityTypeIds) {
+        if (activityTypeIds == null || activityTypeIds.isEmpty()) {
+            throw new BusinessException(ErrorCode.E1);
+        }
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.E4));
 
-        List<UUID> activityTypeIds = request.activityTypeIds();
         List<ActivityType> types = activityTypeRepository.findAllById(activityTypeIds);
         if (types.size() != activityTypeIds.size()) {
             throw new BusinessException(ErrorCode.E1);

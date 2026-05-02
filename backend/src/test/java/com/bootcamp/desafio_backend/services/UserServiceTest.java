@@ -1,6 +1,5 @@
 package com.bootcamp.desafio_backend.services;
 
-import com.bootcamp.desafio_backend.dtos.request.DefinePreferencesRequest;
 import com.bootcamp.desafio_backend.dtos.request.UpdateUserRequest;
 import com.bootcamp.desafio_backend.dtos.response.AvatarResponse;
 import com.bootcamp.desafio_backend.dtos.response.PreferenceResponse;
@@ -132,7 +131,7 @@ class UserServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
         when(activityTypeRepository.findAllById(typeIds)).thenReturn(List.of(type));
 
-        userService.definePreferences(userId, new DefinePreferencesRequest(typeIds));
+        userService.definePreferences(userId, typeIds);
 
         verify(preferenceRepository).deleteByUserId(userId);
         verify(preferenceRepository).saveAll(anyList());
@@ -147,7 +146,7 @@ class UserServiceTest {
         when(activityTypeRepository.findAllById(typeIds)).thenReturn(List.of()); // Not found
 
         BusinessException exception = assertThrows(BusinessException.class, () ->
-                userService.definePreferences(userId, new DefinePreferencesRequest(typeIds)));
+                userService.definePreferences(userId, typeIds));
         assertEquals(ErrorCode.E1, exception.getErrorCode());
         
         verify(preferenceRepository, never()).deleteByUserId(any());
@@ -156,7 +155,7 @@ class UserServiceTest {
 
     @Test
     void definePreferences_UserNotFound() {
-        DefinePreferencesRequest request = new DefinePreferencesRequest(List.of(UUID.randomUUID()));
+        List<UUID> request = List.of(UUID.randomUUID());
 
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
@@ -164,6 +163,17 @@ class UserServiceTest {
                 userService.definePreferences(userId, request));
         assertEquals(ErrorCode.E4, exception.getErrorCode());
 
+        verify(preferenceRepository, never()).deleteByUserId(any());
+        verify(preferenceRepository, never()).saveAll(any());
+    }
+
+    @Test
+    void definePreferences_EmptyList() {
+        BusinessException exception = assertThrows(BusinessException.class, () ->
+                userService.definePreferences(userId, List.of()));
+        assertEquals(ErrorCode.E1, exception.getErrorCode());
+
+        verify(activityTypeRepository, never()).findAllById(any());
         verify(preferenceRepository, never()).deleteByUserId(any());
         verify(preferenceRepository, never()).saveAll(any());
     }
