@@ -4,10 +4,12 @@ import java.util.List;
 
 public record ActivityPageResponse(
 
-        List<ActivityResponse> content,
         int page,
-        int size,
-        long totalElements,
-        int totalPages
+        int pageSize,
+        long totalActivities,
+        int totalPages,
+        Integer previous,
+        Integer next,
+        List<ActivityResponse> activities
 ) {
 }

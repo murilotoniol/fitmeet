@@ -1,11 +1,16 @@
 package com.bootcamp.desafio_backend.dtos.request;
 
-import java.util.Date;
-import java.util.UUID;
+import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 public record CreateActivityRequest(
 
@@ -16,17 +21,25 @@ public record CreateActivityRequest(
         @Size(max = 255, message = "A descrição deve conter no máximo 255 caracteres.")
         String description,
 
-        @NotNull(message = "O tipo de atividade é obrigatório.")
-        UUID activityTypeId,
+        @NotNull(message = "O tipo da atividade é obrigatória.")
+        @Schema(type = "string", format = "uuid")
+        UUID typeId,
 
-        String image,
+        @NotNull(message = "A imagem é obrigatória.")
+        @Schema(type = "string", format = "binary")
+        MultipartFile image,
 
         @NotNull(message = "A data da atividade é obrigatória.")
         @FutureOrPresent(message = "A data deve ser no presente ou futuro.")
-        Date scheduleDate,
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        @Schema(type = "string", format = "date-time", example = "2026-05-02T18:30:00")
+        LocalDateTime scheduleDate,
 
+        @Valid
+        @NotNull(message = "O endereço da atividade é obrigatório.")
         ActivityAddressRequest address,
 
+        @NotNull(message = "A privacidade da atividade é obrigatória.")
         Boolean isPrivate
 ) {
 }
