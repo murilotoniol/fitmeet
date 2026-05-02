@@ -49,20 +49,34 @@ public class ActivityController {
 
     @GetMapping
     public ResponseEntity<ActivityPageResponse> getActivities(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(required = false) UUID typeId,
             @RequestParam(defaultValue = "createdAt") String orderBy,
             @RequestParam(defaultValue = "desc") String orderDirection) {
-        return ResponseEntity.ok(activityService.getActivitiesInPage(page, pageSize, typeId, orderBy, orderDirection));
+        return ResponseEntity.ok(activityService.getActivitiesInPage(
+                userDetails.getUser().getId(),
+                page,
+                pageSize,
+                typeId,
+                orderBy,
+                orderDirection
+        ));
     }
 
     @GetMapping("/all")
     public ResponseEntity<List<ActivityResponse>> getActivitiesAll(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestParam(required = false) UUID typeId,
-            @RequestParam(required = false) String orderBy,
-            @RequestParam(required = false) String orderDirection) {
-        return ResponseEntity.ok(activityService.getActivityAll(typeId, orderBy, orderDirection));
+            @RequestParam(defaultValue = "createdAt") String orderBy,
+            @RequestParam(defaultValue = "desc") String orderDirection) {
+        return ResponseEntity.ok(activityService.getActivityAll(
+                userDetails.getUser().getId(),
+                typeId,
+                orderBy,
+                orderDirection
+        ));
     }
 
     @GetMapping("/user/creator")
