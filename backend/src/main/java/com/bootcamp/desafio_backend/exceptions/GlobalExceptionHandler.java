@@ -1,15 +1,12 @@
 package com.bootcamp.desafio_backend.exceptions;
 
-import org.springframework.http.HttpStatus;
+import com.bootcamp.desafio_backend.dtos.response.ErrorResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import com.bootcamp.desafio_backend.dtos.response.ErrorResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.LocalDateTime;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -18,30 +15,18 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException exception) {
-        ErrorResponse response = new ErrorResponse(
-                exception.getErrorCode().name(),
-                exception.getMessage(),
-                LocalDateTime.now());
-
         return ResponseEntity
                 .status(exception.getErrorCode().getStatus())
-                .body(response);
+                .body(new ErrorResponse(exception.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException exception) {
-
         ErrorCode errorCode = ErrorCode.E1;
-
-        ErrorResponse response = new ErrorResponse(
-          errorCode.name(),
-          errorCode.getMessage(),
-          LocalDateTime.now()
-        );
 
         return ResponseEntity
                 .status(errorCode.getStatus())
-                .body(response);
+                .body(new ErrorResponse(errorCode.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
@@ -50,14 +35,8 @@ public class GlobalExceptionHandler {
 
         log.error("Unexpected exception handled by GlobalExceptionHandler", exception);
 
-        ErrorResponse response = new ErrorResponse(
-                errorCode.name(),
-                errorCode.getMessage(),
-                LocalDateTime.now()
-        );
-
         return ResponseEntity
                 .status(errorCode.getStatus())
-                .body(response);
+                .body(new ErrorResponse(errorCode.getMessage()));
     }
 }
