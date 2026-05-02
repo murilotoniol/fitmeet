@@ -9,6 +9,8 @@ import com.bootcamp.desafio_backend.dtos.response.UserProfileResponse;
 import com.bootcamp.desafio_backend.dtos.response.UserResponse;
 import com.bootcamp.desafio_backend.security.UserDetailsImpl;
 import com.bootcamp.desafio_backend.services.UserService;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -58,6 +60,7 @@ public class UserController {
     @PutMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AvatarResponse> updateAvatar(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @Parameter(schema = @Schema(type = "string", format = "binary"))
             @RequestParam("avatar") MultipartFile file) {
         AvatarResponse response = userService.updateAvatar(userDetails.getUser().getId(), file);
         return ResponseEntity.ok(response);
