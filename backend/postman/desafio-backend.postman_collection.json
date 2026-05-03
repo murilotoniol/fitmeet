@@ -1,0 +1,516 @@
+{
+  "info": {
+    "_postman_id": "9a4f6e28-90f3-46e8-a7e4-bootcamp-api",
+    "name": "Desafio Backend - Avaliadores",
+    "description": "Collection para popular usuarios de teste e validar os principais fluxos do desafio. Execute primeiro a pasta \"01 - Seed usuarios e login\" e depois siga as pastas seguintes. Para criar atividade, ajuste a variavel de ambiente activityImagePath para uma imagem PNG/JPG existente na maquina.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{creatorToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const scheduledDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().replace('Z', '');",
+          "pm.environment.set('scheduledDate', scheduledDate);"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Seed usuarios e login",
+      "item": [
+        {
+          "name": "Registrar criador",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Avaliador Criador\",\n  \"email\": \"criador.avaliador@example.com\",\n  \"cpf\": \"52998224725\",\n  \"password\": \"{{seedPassword}}\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/register",
+            "description": "Cria o usuario que sera dono das atividades. Se retornar 409, o usuario provavelmente ja existe; execute o login em seguida."
+          }
+        },
+        {
+          "name": "Registrar participante",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Avaliador Participante\",\n  \"email\": \"participante.avaliador@example.com\",\n  \"cpf\": \"11144477735\",\n  \"password\": \"{{seedPassword}}\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/register",
+            "description": "Cria o usuario que vai se inscrever e fazer check-in."
+          }
+        },
+        {
+          "name": "Registrar revisor",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Avaliador Revisor\",\n  \"email\": \"revisor.avaliador@example.com\",\n  \"cpf\": \"12345678909\",\n  \"password\": \"{{seedPassword}}\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/register",
+            "description": "Usuario extra para testar listagens, preferencias e tentativas sem permissao."
+          }
+        },
+        {
+          "name": "Login criador",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('login criador OK', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.environment.set('creatorToken', json.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"criador.avaliador@example.com\",\n  \"password\": \"{{seedPassword}}\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/sign-in"
+          }
+        },
+        {
+          "name": "Login participante",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('login participante OK', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.environment.set('participantToken', json.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"participante.avaliador@example.com\",\n  \"password\": \"{{seedPassword}}\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/sign-in"
+          }
+        },
+        {
+          "name": "Login revisor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('login revisor OK', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.environment.set('reviewerToken', json.token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"revisor.avaliador@example.com\",\n  \"password\": \"{{seedPassword}}\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/sign-in"
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Preferencias e tipos",
+      "item": [
+        {
+          "name": "Listar tipos de atividade",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('tipos retornados', () => pm.response.to.have.status(200));",
+                  "const types = pm.response.json();",
+                  "pm.test('existe ao menos um tipo', () => pm.expect(types.length).to.be.above(0));",
+                  "pm.environment.set('activityTypeId', types[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/activities/types"
+          }
+        },
+        {
+          "name": "Definir preferencias do participante",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{participantToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  \"{{activityTypeId}}\"\n]"
+            },
+            "url": "{{baseUrl}}/user/preferences/define"
+          }
+        },
+        {
+          "name": "Buscar preferencias do participante",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{participantToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/user/preferences"
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Atividade privada completa",
+      "item": [
+        {
+          "name": "Criar atividade privada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('atividade criada', () => pm.response.to.have.status(201));",
+                  "const json = pm.response.json();",
+                  "pm.environment.set('activityId', json.id);",
+                  "pm.environment.set('confirmationCode', json.confirmationCode);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "title",
+                  "value": "Workshop avaliadores - atividade privada",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Atividade privada criada pela collection do Postman.",
+                  "type": "text"
+                },
+                {
+                  "key": "typeId",
+                  "value": "{{activityTypeId}}",
+                  "type": "text"
+                },
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "{{activityImagePath}}"
+                },
+                {
+                  "key": "scheduledDate",
+                  "value": "{{scheduledDate}}",
+                  "type": "text"
+                },
+                {
+                  "key": "address.street",
+                  "value": "Rua dos Avaliadores",
+                  "type": "text"
+                },
+                {
+                  "key": "address.number",
+                  "value": "100",
+                  "type": "text"
+                },
+                {
+                  "key": "address.neighborhood",
+                  "value": "Centro",
+                  "type": "text"
+                },
+                {
+                  "key": "address.city",
+                  "value": "Sao Paulo",
+                  "type": "text"
+                },
+                {
+                  "key": "address.state",
+                  "value": "SP",
+                  "type": "text"
+                },
+                {
+                  "key": "address.latitude",
+                  "value": "-23.5505",
+                  "type": "text"
+                },
+                {
+                  "key": "address.longitude",
+                  "value": "-46.6333",
+                  "type": "text"
+                },
+                {
+                  "key": "isPrivate",
+                  "value": "true",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": "{{baseUrl}}/activities/new"
+          }
+        },
+        {
+          "name": "Participante se inscreve",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{participantToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": "{{baseUrl}}/activities/{{activityId}}/subscribe"
+          }
+        },
+        {
+          "name": "Criador lista participantes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('participantes retornados', () => pm.response.to.have.status(200));",
+                  "const participants = pm.response.json();",
+                  "const participant = participants.find(item => item.user && item.user.email === 'participante.avaliador@example.com');",
+                  "pm.test('participante inscrito encontrado', () => pm.expect(participant).to.exist);",
+                  "pm.environment.set('participantRegistrationId', participant.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/activities/{{activityId}}/participants"
+          }
+        },
+        {
+          "name": "Criador aprova participante",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"participantId\": \"{{participantRegistrationId}}\",\n  \"approved\": true\n}"
+            },
+            "url": "{{baseUrl}}/activities/{{activityId}}/approve"
+          }
+        },
+        {
+          "name": "Participante faz check-in",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{participantToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"confirmationCode\": \"{{confirmationCode}}\"\n}"
+            },
+            "url": "{{baseUrl}}/activities/{{activityId}}/check-in"
+          }
+        },
+        {
+          "name": "Participante consulta atividades inscritas",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{participantToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/activities/user/participant?page=1&pageSize=10&orderBy=createdAt&orderDirection=desc"
+          }
+        },
+        {
+          "name": "Criador conclui atividade",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": "{{baseUrl}}/activities/{{activityId}}/conclude"
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 - Consultas principais",
+      "item": [
+        {
+          "name": "Buscar usuario logado - criador",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/user"
+          }
+        },
+        {
+          "name": "Listar atividades paginadas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/activities?page=1&pageSize=10&orderBy=createdAt&orderDirection=desc"
+          }
+        },
+        {
+          "name": "Listar todas atividades",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/activities/all?orderBy=createdAt&orderDirection=desc"
+          }
+        },
+        {
+          "name": "Listar minhas atividades criadas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/activities/user/creator?page=1&pageSize=10&orderBy=createdAt&orderDirection=desc"
+          }
+        }
+      ]
+    }
+  ]
+}
