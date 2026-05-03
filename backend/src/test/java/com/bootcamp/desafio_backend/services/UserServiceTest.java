@@ -270,6 +270,39 @@ class UserServiceTest {
     }
 
     @Test
+    void updateUser_WithOnlyName_UpdatesNameAndKeepsEmail() {
+        UpdateUserRequest request = new UpdateUserRequest("Only Name", null, null);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        UserResponse response = userService.updateUser(userId, request);
+
+        assertEquals("Only Name", response.name());
+        assertEquals("test@test.com", response.email());
+        verify(userRepository, never()).existsByEmail(any());
+        verify(userRepository).save(mockUser);
+    }
+
+    @Test
+    void updateUser_WithOnlyPassword_UpdatesPasswordAndKeepsProfileData() {
+        UpdateUserRequest request = new UpdateUserRequest(null, null, "novaSenha123");
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
+        when(passwordEncoder.encode(request.password())).thenReturn("encoded-password");
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        UserResponse response = userService.updateUser(userId, request);
+
+        assertEquals("Test User", response.name());
+        assertEquals("test@test.com", response.email());
+        assertEquals("encoded-password", mockUser.getPassword());
+        verify(userRepository, never()).existsByEmail(any());
+        verify(passwordEncoder).encode("novaSenha123");
+        verify(userRepository).save(mockUser);
+    }
+
+    @Test
     void deactivateUser_Success() {
         when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
