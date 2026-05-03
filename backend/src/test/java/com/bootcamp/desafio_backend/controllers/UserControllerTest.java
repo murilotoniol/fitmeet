@@ -107,7 +107,7 @@ class UserControllerTest {
     @Test
     void updateAvatar_ReturnsOk() {
         MockMultipartFile file = new MockMultipartFile("avatar", "avatar.png", "image/png", "image-data".getBytes());
-        AvatarResponse avatarResponse = new AvatarResponse("data:image/png;base64,abc");
+        AvatarResponse avatarResponse = new AvatarResponse("http://localhost:4566/backend-challenge-images/avatars/test.png");
 
         when(userService.updateAvatar(userId, file)).thenReturn(avatarResponse);
 
@@ -115,13 +115,13 @@ class UserControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("data:image/png;base64,abc", response.getBody().avatar());
+        assertEquals("http://localhost:4566/backend-challenge-images/avatars/test.png", response.getBody().avatar());
         verify(userService).updateAvatar(userId, file);
     }
 
     @Test
     void updateUser_ReturnsOk() {
-        UpdateUserRequest request = new UpdateUserRequest("Updated User", "updated@test.com");
+        UpdateUserRequest request = new UpdateUserRequest("Updated User", "updated@test.com", "novaSenha123");
         UserResponse userResponse = new UserResponse(
                 userId,
                 "Updated User",

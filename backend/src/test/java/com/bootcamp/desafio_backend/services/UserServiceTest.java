@@ -23,6 +23,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +44,10 @@ class UserServiceTest {
     private UserAchievementRepository userAchievementRepository;
     @Mock
     private ActivityTypeRepository activityTypeRepository;
+    @Mock
+    private PasswordEncoder passwordEncoder;
+    @Mock
+    private StorageService storageService;
 
     @InjectMocks
     private UserService userService;
@@ -182,12 +187,13 @@ class UserServiceTest {
     void updateAvatar_Success() throws Exception {
         MockMultipartFile file = new MockMultipartFile("file", "avatar.png", "image/png", "dummy image data".getBytes());
         when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
+        when(storageService.uploadImage(file, "avatars")).thenReturn("http://localhost:4566/backend-challenge-images/avatars/test.png");
         when(userRepository.save(any(User.class))).thenReturn(mockUser);
 
         AvatarResponse response = userService.updateAvatar(userId, file);
 
         assertNotNull(response);
-        assertTrue(response.avatar().startsWith("data:image/png;base64,"));
+        assertEquals("http://localhost:4566/backend-challenge-images/avatars/test.png", response.avatar());
         verify(userRepository).save(mockUser);
     }
 
@@ -219,7 +225,7 @@ class UserServiceTest {
 
     @Test
     void updateUser_Success() {
-        UpdateUserRequest request = new UpdateUserRequest("Updated Name", "updated@test.com");
+        UpdateUserRequest request = new UpdateUserRequest("Updated Name", "updated@test.com", null);
         
         when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
         when(userRepository.existsByEmail(request.email())).thenReturn(false);
@@ -234,7 +240,7 @@ class UserServiceTest {
 
     @Test
     void updateUser_EmailAlreadyInUse() {
-        UpdateUserRequest request = new UpdateUserRequest("Updated Name", "existing@test.com");
+        UpdateUserRequest request = new UpdateUserRequest("Updated Name", "existing@test.com", null);
         
         when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
         when(userRepository.existsByEmail(request.email())).thenReturn(true);
@@ -243,6 +249,24 @@ class UserServiceTest {
         assertEquals(ErrorCode.E3, exception.getErrorCode());
         
         verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void updateUser_WithPassword_EncodesAndUpdatesPassword() {
+        UpdateUserRequest request = new UpdateUserRequest("Updated Name", "updated@test.com", "novaSenha123");
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
+        when(userRepository.existsByEmail(request.email())).thenReturn(false);
+        when(passwordEncoder.encode(request.password())).thenReturn("encoded-password");
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        UserResponse response = userService.updateUser(userId, request);
+
+        assertEquals("Updated Name", response.name());
+        assertEquals("updated@test.com", response.email());
+        assertEquals("encoded-password", mockUser.getPassword());
+        verify(passwordEncoder).encode("novaSenha123");
+        verify(userRepository).save(mockUser);
     }
 
     @Test
