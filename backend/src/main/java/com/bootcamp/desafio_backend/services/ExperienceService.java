@@ -2,28 +2,36 @@ package com.bootcamp.desafio_backend.services;
 
 import com.bootcamp.desafio_backend.models.User;
 import com.bootcamp.desafio_backend.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ExperienceService {
 
-    private static final int BASE_XP_TO_LEVEL_UP = 100;
-    private static final double LEVEL_XP_MULTIPLIER = 1.08;
-    private static final int PARTICIPANT_CHECK_IN_XP = 25;
-    private static final int CREATOR_CHECK_IN_XP = 5;
-
     private final UserRepository userRepository;
     private final AchievementService achievementService;
+    private final int baseXpToLevelUp;
+    private final double levelXpMultiplier;
+    private final int participantCheckInXp;
+    private final int creatorCheckInXp;
 
     public ExperienceService(UserRepository userRepository,
-                             AchievementService achievementService) {
+                             AchievementService achievementService,
+                             @Value("${experience.level.base-xp-to-level-up:100}") int baseXpToLevelUp,
+                             @Value("${experience.level.multiplier:1.08}") double levelXpMultiplier,
+                             @Value("${experience.check-in.participant-xp:25}") int participantCheckInXp,
+                             @Value("${experience.check-in.creator-xp:5}") int creatorCheckInXp) {
         this.userRepository = userRepository;
         this.achievementService = achievementService;
+        this.baseXpToLevelUp = baseXpToLevelUp;
+        this.levelXpMultiplier = levelXpMultiplier;
+        this.participantCheckInXp = participantCheckInXp;
+        this.creatorCheckInXp = creatorCheckInXp;
     }
 
     public void applyCheckInExperience(User participant, User creator) {
-        applyXpAndRefreshLevel(participant, PARTICIPANT_CHECK_IN_XP);
-        applyXpAndRefreshLevel(creator, CREATOR_CHECK_IN_XP);
+        applyXpAndRefreshLevel(participant, participantCheckInXp);
+        applyXpAndRefreshLevel(creator, creatorCheckInXp);
     }
 
     private void applyXpAndRefreshLevel(User user, int xpGain) {
@@ -47,7 +55,7 @@ public class ExperienceService {
     }
 
     private int xpRequiredForNextLevel(int currentLevel) {
-        double multiplierPower = Math.pow(LEVEL_XP_MULTIPLIER, currentLevel - 1);
-        return (int) Math.ceil(BASE_XP_TO_LEVEL_UP * multiplierPower);
+        double multiplierPower = Math.pow(levelXpMultiplier, currentLevel - 1);
+        return (int) Math.ceil(baseXpToLevelUp * multiplierPower);
     }
 }

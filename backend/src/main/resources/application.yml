@@ -27,3 +27,11 @@ aws:
     endpoint: ${LOCALSTACK_ENDPOINT:http://localhost:4566}
     access-key: ${AWS_ACCESS_KEY_ID:test}
     secret-key: ${AWS_SECRET_ACCESS_KEY:test}
+
+experience:
+  level:
+    base-xp-to-level-up: ${EXPERIENCE_LEVEL_BASE_XP:100}
+    multiplier: ${EXPERIENCE_LEVEL_MULTIPLIER:1.08}
+  check-in:
+    participant-xp: ${EXPERIENCE_CHECK_IN_PARTICIPANT_XP:25}
+    creator-xp: ${EXPERIENCE_CHECK_IN_CREATOR_XP:5}
