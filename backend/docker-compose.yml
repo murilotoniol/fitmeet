@@ -20,6 +20,7 @@ services:
       AWS_REGION: ${AWS_REGION}
       AWS_S3_BUCKET: ${AWS_S3_BUCKET}
       LOCALSTACK_ENDPOINT: http://localstack:4566
+      APP_PUBLIC_URL: http://localhost:8080
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
     ports:

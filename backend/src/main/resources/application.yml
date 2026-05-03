@@ -16,6 +16,9 @@ spring:
   config:
     import: optional:file:.env
 
+app:
+  public-url: ${APP_PUBLIC_URL:http://localhost:8080}
+
 jwt:
   secret: ${JWT_SECRET:change-this-secret}
   expiration: ${JWT_EXPIRATION:86400000}
