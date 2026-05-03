@@ -16,8 +16,6 @@ public interface ActivityRepository extends JpaRepository<Activity, UUID> {
 
     Page<Activity> findByType_IdAndDeletedAtIsNullAndCompletedAtIsNull(UUID typeId, Pageable pageable);
 
-    Page<Activity> findByDeletedAtIsNullAndCompletedAtIsNull(Pageable pageable);
-
     List<Activity> findByType_IdAndDeletedAtIsNullAndCompletedAtIsNull(UUID typeId, Sort sort);
 
     List<Activity> findByDeletedAtIsNullAndCompletedAtIsNull(Sort sort);
