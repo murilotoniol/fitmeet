@@ -19,3 +19,11 @@ spring:
 jwt:
   secret: ${JWT_SECRET:change-this-secret}
   expiration: ${JWT_EXPIRATION:86400000}
+
+aws:
+  region: ${AWS_REGION:sa-east-1}
+  s3:
+    bucket: ${AWS_S3_BUCKET:backend-challenge-images}
+    endpoint: ${LOCALSTACK_ENDPOINT:http://localhost:4566}
+    access-key: ${AWS_ACCESS_KEY_ID:test}
+    secret-key: ${AWS_SECRET_ACCESS_KEY:test}
