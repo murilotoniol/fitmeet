@@ -3,14 +3,19 @@ package com.bootcamp.desafio_backend.services;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.ResponseBytes;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.CreateBucketRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
 import software.amazon.awssdk.services.s3.model.NoSuchBucketException;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -18,18 +23,15 @@ public class StorageService {
 
     private final S3Client s3Client;
     private final String bucketName;
-    private final String endpoint;
-    private final String region;
+    private final String publicUrl;
 
     public StorageService(
             S3Client s3Client,
             @Value("${aws.s3.bucket}") String bucketName,
-            @Value("${aws.s3.endpoint}") String endpoint,
-            @Value("${aws.region}") String region) {
+            @Value("${app.public-url:http://localhost:8080}") String publicUrl) {
         this.s3Client = s3Client;
         this.bucketName = bucketName;
-        this.endpoint = endpoint;
-        this.region = region;
+        this.publicUrl = publicUrl;
     }
 
     public String uploadImage(MultipartFile file, String folder) {
@@ -51,6 +53,15 @@ public class StorageService {
         }
 
         return buildFileUrl(key);
+    }
+
+    public Optional<StoredImage> findImageByFileName(String fileName) {
+        return List.of("activities", "avatars").stream()
+                .map(folder -> folder + "/" + fileName)
+                .map(this::findImageByKey)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .findFirst();
     }
 
     private void ensureBucketExists() {
@@ -75,10 +86,28 @@ public class StorageService {
     }
 
     private String buildFileUrl(String key) {
-        if (endpoint != null && !endpoint.isBlank()) {
-            return endpoint.replaceAll("/$", "") + "/" + bucketName + "/" + key;
-        }
+        String fileName = key.substring(key.lastIndexOf("/") + 1);
+        return publicUrl.replaceAll("/$", "") + "/images/" + fileName;
+    }
 
-        return "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + key;
+    private Optional<StoredImage> findImageByKey(String key) {
+        try {
+            ResponseBytes<GetObjectResponse> response = s3Client.getObjectAsBytes(
+                    GetObjectRequest.builder()
+                            .bucket(bucketName)
+                            .key(key)
+                            .build()
+            );
+
+            return Optional.of(new StoredImage(response.asByteArray(), response.response().contentType()));
+        } catch (S3Exception exception) {
+            if (exception.statusCode() == 404) {
+                return Optional.empty();
+            }
+            throw exception;
+        }
+    }
+
+    public record StoredImage(byte[] content, String contentType) {
     }
 }
