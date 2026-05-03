@@ -156,7 +156,7 @@
 				<configuration>
 					<excludes>
 						<exclude>com/bootcamp/desafio_backend/DesafioBackendApplication.class</exclude>
-						<exclude>com/bootcamp/desafio_backend/configs/**</exclude>
+						<exclude>com/bootcamp/desafio_backend/config/**</exclude>
 						<exclude>com/bootcamp/desafio_backend/dtos/**</exclude>
 						<exclude>com/bootcamp/desafio_backend/enums/**</exclude>
 						<exclude>com/bootcamp/desafio_backend/models/**</exclude>
