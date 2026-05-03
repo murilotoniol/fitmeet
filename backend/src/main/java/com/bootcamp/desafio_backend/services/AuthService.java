@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthService {
 
+    private static final String DEFAULT_AVATAR_URL = "https://t4.ftcdn.net/jpg/02/29/75/83/360_F_229758328_7x8jwCwjtBMmC6rgFzLFhZoEpLobB6L8.jpg";
+
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -55,6 +57,7 @@ public class AuthService {
         newUser.setEmail(request.email());
         newUser.setCpf(request.cpf());
         newUser.setPassword(passwordEncoder.encode(request.password()));
+        newUser.setAvatar(DEFAULT_AVATAR_URL);
 
         User savedUser = userRepository.save(newUser);
 
