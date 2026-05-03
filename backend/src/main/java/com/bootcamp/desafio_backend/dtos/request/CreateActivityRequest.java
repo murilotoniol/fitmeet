@@ -33,7 +33,7 @@ public record CreateActivityRequest(
         @FutureOrPresent(message = "A data deve ser no presente ou futuro.")
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
         @Schema(type = "string", format = "date-time", example = "2026-05-02T18:30:00")
-        LocalDateTime scheduleDate,
+        LocalDateTime scheduledDate,
 
         @Valid
         @NotNull(message = "O endereço da atividade é obrigatório.")

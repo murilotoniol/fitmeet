@@ -22,7 +22,7 @@ public record UpdateActivityRequest(
 
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
         @Schema(type = "string", format = "date-time", example = "2026-05-02T18:30:00")
-        LocalDateTime scheduleDate,
+        LocalDateTime scheduledDate,
 
         @Valid
         ActivityAddressRequest address,
