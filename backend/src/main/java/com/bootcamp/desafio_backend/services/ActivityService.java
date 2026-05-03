@@ -22,14 +22,11 @@ import com.bootcamp.desafio_backend.models.ActivityParticipant;
 import com.bootcamp.desafio_backend.models.ActivityType;
 import com.bootcamp.desafio_backend.models.Preference;
 import com.bootcamp.desafio_backend.models.User;
-import com.bootcamp.desafio_backend.models.UserAchievement;
-import com.bootcamp.desafio_backend.repositories.AchievementRepository;
 import com.bootcamp.desafio_backend.repositories.ActivityAddressRepository;
 import com.bootcamp.desafio_backend.repositories.ActivityParticipantRepository;
 import com.bootcamp.desafio_backend.repositories.ActivityRepository;
 import com.bootcamp.desafio_backend.repositories.ActivityTypeRepository;
 import com.bootcamp.desafio_backend.repositories.PreferenceRepository;
-import com.bootcamp.desafio_backend.repositories.UserAchievementRepository;
 import com.bootcamp.desafio_backend.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -49,47 +46,35 @@ import java.util.UUID;
 @Service
 public class ActivityService {
 
-    private static final int BASE_XP_TO_LEVEL_UP = 100;
-    private static final double LEVEL_XP_MULTIPLIER = 1.08;
-    private static final int PARTICIPANT_CHECK_IN_XP = 25;
-    private static final int CREATOR_CHECK_IN_XP = 5;
-    private static final String ACHIEVEMENT_FIRST_CHECK_IN = "Primeiro Check-in";
-    private static final String ACHIEVEMENT_FIRST_TECH_CHECK_IN = "Primeiro check-in em tecnologia";
-    private static final String ACHIEVEMENT_FIRST_ACTIVITY_CREATED = "Primeira atividade criada";
-    private static final String ACHIEVEMENT_FIRST_ACTIVITY_COMPLETED = "Primeira atividade concluída";
-    private static final String ACHIEVEMENT_LEVEL_7 = "Alcançou level 7";
-    private static final String ACHIEVEMENT_LEVEL_77 = "Alcançou level 77";
-    private static final String ACHIEVEMENT_LEVEL_100 = "Alcançou level 100";
-
     private final ActivityRepository activityRepository;
     private final ActivityTypeRepository activityTypeRepository;
     private final ActivityAddressRepository activityAddressRepository;
     private final ActivityParticipantRepository activityParticipantRepository;
     private final PreferenceRepository preferenceRepository;
-    private final AchievementRepository achievementRepository;
-    private final UserAchievementRepository userAchievementRepository;
     private final UserRepository userRepository;
     private final StorageService storageService;
+    private final ExperienceService experienceService;
+    private final AchievementService achievementService;
 
     public ActivityService(ActivityRepository activityRepository,
                            ActivityTypeRepository activityTypeRepository,
                            ActivityAddressRepository activityAddressRepository,
                            ActivityParticipantRepository activityParticipantRepository,
                            PreferenceRepository preferenceRepository,
-                           AchievementRepository achievementRepository,
-                           UserAchievementRepository userAchievementRepository,
                            UserRepository userRepository,
-                           StorageService storageService) {
+                           StorageService storageService,
+                           ExperienceService experienceService,
+                           AchievementService achievementService) {
 
         this.activityRepository = activityRepository;
         this.activityTypeRepository = activityTypeRepository;
         this.activityAddressRepository = activityAddressRepository;
         this.activityParticipantRepository = activityParticipantRepository;
         this.preferenceRepository = preferenceRepository;
-        this.achievementRepository = achievementRepository;
-        this.userAchievementRepository = userAchievementRepository;
         this.userRepository = userRepository;
         this.storageService = storageService;
+        this.experienceService = experienceService;
+        this.achievementService = achievementService;
     }
 
     public List<ActivityTypeResponse> getActivityTypes() {
@@ -228,7 +213,7 @@ public class ActivityService {
             activityAddressRepository.save(address);
         }
 
-        grantAchievementIfExists(creator, ACHIEVEMENT_FIRST_ACTIVITY_CREATED);
+        achievementService.grantFirstActivityCreated(creator);
 
         return mapToActivityResponse(savedActivity, true);
     }
@@ -320,7 +305,7 @@ public class ActivityService {
         if (activity.getCompletedAt() == null) {
             activity.setCompletedAt(LocalDateTime.now());
             activityRepository.save(activity);
-            grantAchievementIfExists(activity.getCreator(), achievementFirstActivityCompleted());
+            achievementService.grantFirstActivityCompleted(activity.getCreator());
         }
 
         return new MessageResponse("Atividade concluida com sucesso");
@@ -368,12 +353,11 @@ public class ActivityService {
         participant.setConfirmedAt(LocalDateTime.now());
         participant.setStatus(ParticipationStatus.CHECKED_IN);
         activityParticipantRepository.save(participant);
-        applyXpAndRefreshLevel(participant.getUser(), PARTICIPANT_CHECK_IN_XP);
-        applyXpAndRefreshLevel(activity.getCreator(), CREATOR_CHECK_IN_XP);
-        grantAchievementIfExists(participant.getUser(), ACHIEVEMENT_FIRST_CHECK_IN);
+        experienceService.applyCheckInExperience(participant.getUser(), activity.getCreator());
+        achievementService.grantFirstCheckIn(participant.getUser());
 
         if ("Tecnologia".equalsIgnoreCase(activity.getType().getName())) {
-            grantAchievementIfExists(participant.getUser(), ACHIEVEMENT_FIRST_TECH_CHECK_IN);
+            achievementService.grantFirstTechCheckIn(participant.getUser());
         }
 
         return new MessageResponse("Check-in realizado com sucesso");
@@ -442,77 +426,6 @@ public class ActivityService {
 
     private String generateConfirmationCode() {
         return UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-    }
-
-    private void applyXpAndRefreshLevel(User user, int xpGain) {
-        int updatedXp = user.getXp() + xpGain;
-        user.setXp(updatedXp);
-        user.setLevel(calculateLevelFromXp(updatedXp));
-        userRepository.save(user);
-        grantLevelAchievements(user);
-    }
-
-    private int calculateLevelFromXp(int totalXp) {
-        int calculatedLevel = 1;
-        int remainingXp = totalXp;
-
-        while (remainingXp >= xpRequiredForNextLevel(calculatedLevel)) {
-            remainingXp -= xpRequiredForNextLevel(calculatedLevel);
-            calculatedLevel++;
-        }
-
-        return calculatedLevel;
-    }
-
-    private int xpRequiredForNextLevel(int currentLevel) {
-        double multiplierPower = Math.pow(LEVEL_XP_MULTIPLIER, currentLevel - 1);
-        return (int) Math.ceil(BASE_XP_TO_LEVEL_UP * multiplierPower);
-    }
-
-    private void grantLevelAchievements(User user) {
-        if (user.getLevel() >= 7) {
-            grantAchievementIfExists(user, achievementLevel7());
-        }
-
-        if (user.getLevel() >= 77) {
-            grantAchievementIfExists(user, achievementLevel77());
-        }
-
-        if (user.getLevel() >= 100) {
-            grantAchievementIfExists(user, achievementLevel100());
-        }
-    }
-
-    private void grantAchievementIfExists(User user, String achievementName) {
-        achievementRepository.findByName(achievementName).ifPresent(achievement -> {
-            boolean alreadyGranted = userAchievementRepository.existsByUserIdAndAchievementId(
-                    user.getId(),
-                    achievement.getId()
-            );
-
-            if (!alreadyGranted) {
-                UserAchievement userAchievement = new UserAchievement();
-                userAchievement.setUser(user);
-                userAchievement.setAchievement(achievement);
-                userAchievementRepository.save(userAchievement);
-            }
-        });
-    }
-
-    private String achievementFirstActivityCompleted() {
-        return "Primeira atividade conclu\u00edda";
-    }
-
-    private String achievementLevel7() {
-        return "Alcan\u00e7ou level 7";
-    }
-
-    private String achievementLevel77() {
-        return "Alcan\u00e7ou level 77";
-    }
-
-    private String achievementLevel100() {
-        return "Alcan\u00e7ou level 100";
     }
 
     private List<Activity> prioritizeActivitiesByInterest(List<Activity> activities, UUID userId) {
