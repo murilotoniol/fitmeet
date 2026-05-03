@@ -15,17 +15,21 @@ import com.bootcamp.desafio_backend.dtos.response.ParticipantResponse;
 import com.bootcamp.desafio_backend.dtos.response.UserResponse;
 import com.bootcamp.desafio_backend.exceptions.BusinessException;
 import com.bootcamp.desafio_backend.exceptions.ErrorCode;
+import com.bootcamp.desafio_backend.models.Achievement;
 import com.bootcamp.desafio_backend.models.Activity;
 import com.bootcamp.desafio_backend.models.ActivityAddress;
 import com.bootcamp.desafio_backend.models.ActivityParticipant;
 import com.bootcamp.desafio_backend.models.ActivityType;
 import com.bootcamp.desafio_backend.models.Preference;
 import com.bootcamp.desafio_backend.models.User;
+import com.bootcamp.desafio_backend.models.UserAchievement;
+import com.bootcamp.desafio_backend.repositories.AchievementRepository;
 import com.bootcamp.desafio_backend.repositories.ActivityAddressRepository;
 import com.bootcamp.desafio_backend.repositories.ActivityParticipantRepository;
 import com.bootcamp.desafio_backend.repositories.ActivityRepository;
 import com.bootcamp.desafio_backend.repositories.ActivityTypeRepository;
 import com.bootcamp.desafio_backend.repositories.PreferenceRepository;
+import com.bootcamp.desafio_backend.repositories.UserAchievementRepository;
 import com.bootcamp.desafio_backend.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -37,7 +41,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -46,26 +49,47 @@ import java.util.UUID;
 @Service
 public class ActivityService {
 
+    private static final int BASE_XP_TO_LEVEL_UP = 100;
+    private static final double LEVEL_XP_MULTIPLIER = 1.08;
+    private static final int PARTICIPANT_CHECK_IN_XP = 25;
+    private static final int CREATOR_CHECK_IN_XP = 5;
+    private static final String ACHIEVEMENT_FIRST_CHECK_IN = "Primeiro Check-in";
+    private static final String ACHIEVEMENT_FIRST_TECH_CHECK_IN = "Primeiro check-in em tecnologia";
+    private static final String ACHIEVEMENT_FIRST_ACTIVITY_CREATED = "Primeira atividade criada";
+    private static final String ACHIEVEMENT_FIRST_ACTIVITY_COMPLETED = "Primeira atividade concluída";
+    private static final String ACHIEVEMENT_LEVEL_7 = "Alcançou level 7";
+    private static final String ACHIEVEMENT_LEVEL_77 = "Alcançou level 77";
+    private static final String ACHIEVEMENT_LEVEL_100 = "Alcançou level 100";
+
     private final ActivityRepository activityRepository;
     private final ActivityTypeRepository activityTypeRepository;
     private final ActivityAddressRepository activityAddressRepository;
     private final ActivityParticipantRepository activityParticipantRepository;
     private final PreferenceRepository preferenceRepository;
+    private final AchievementRepository achievementRepository;
+    private final UserAchievementRepository userAchievementRepository;
     private final UserRepository userRepository;
+    private final StorageService storageService;
 
     public ActivityService(ActivityRepository activityRepository,
                            ActivityTypeRepository activityTypeRepository,
                            ActivityAddressRepository activityAddressRepository,
                            ActivityParticipantRepository activityParticipantRepository,
                            PreferenceRepository preferenceRepository,
-                           UserRepository userRepository) {
+                           AchievementRepository achievementRepository,
+                           UserAchievementRepository userAchievementRepository,
+                           UserRepository userRepository,
+                           StorageService storageService) {
 
         this.activityRepository = activityRepository;
         this.activityTypeRepository = activityTypeRepository;
         this.activityAddressRepository = activityAddressRepository;
         this.activityParticipantRepository = activityParticipantRepository;
         this.preferenceRepository = preferenceRepository;
+        this.achievementRepository = achievementRepository;
+        this.userAchievementRepository = userAchievementRepository;
         this.userRepository = userRepository;
+        this.storageService = storageService;
     }
 
     public List<ActivityTypeResponse> getActivityTypes() {
@@ -80,10 +104,11 @@ public class ActivityService {
     }
 
     public ActivityPageResponse getActivitiesInPage(UUID userId, int page, int pageSize, UUID typeId, String orderBy, String orderDirection) {
+        int pageIndex = normalizePage(page);
         Sort sort = buildSort(orderBy, orderDirection);
 
         if (typeId != null) {
-            Pageable pageable = PageRequest.of(page, pageSize, sort);
+            Pageable pageable = PageRequest.of(pageIndex, pageSize, sort);
             Page<Activity> activityPage = activityRepository.findByType_IdAndDeletedAtIsNullAndCompletedAtIsNull(typeId, pageable);
             return mapToActivityPageResponse(activityPage, false);
         }
@@ -93,13 +118,13 @@ public class ActivityService {
                 userId
         );
 
-        int start = Math.min(page * pageSize, prioritizedActivities.size());
+        int start = Math.min(pageIndex * pageSize, prioritizedActivities.size());
         int end = Math.min(start + pageSize, prioritizedActivities.size());
         List<Activity> pageContent = prioritizedActivities.subList(start, end);
 
         Page<Activity> activityPage = new org.springframework.data.domain.PageImpl<>(
                 pageContent,
-                PageRequest.of(page, pageSize, sort),
+                PageRequest.of(pageIndex, pageSize, sort),
                 prioritizedActivities.size()
         );
 
@@ -123,7 +148,7 @@ public class ActivityService {
     }
 
     public ActivityPageResponse getActivityCreatorInPage(UUID creatorId, int page, int pageSize, String orderBy, String orderDirection) {
-        Pageable pageable = PageRequest.of(page, pageSize, buildSort(orderBy, orderDirection));
+        Pageable pageable = PageRequest.of(normalizePage(page), pageSize, buildSort(orderBy, orderDirection));
         Page<Activity> activityPage = activityRepository.findByCreatorIdAndDeletedAtIsNull(creatorId, pageable);
 
         return mapToActivityPageResponse(activityPage, true);
@@ -138,7 +163,7 @@ public class ActivityService {
     }
 
     public ActivityPageResponse getActivityParticipantInPage(UUID userId, int page, int pageSize, String orderBy, String orderDirection) {
-        Pageable pageable = PageRequest.of(page, pageSize, buildParticipantSort(orderBy, orderDirection));
+        Pageable pageable = PageRequest.of(normalizePage(page), pageSize, buildParticipantSort(orderBy, orderDirection));
         Page<ActivityParticipant> participantPage = activityParticipantRepository.findByUserIdAndActivityDeletedAtIsNull(userId, pageable);
 
         List<ActivityResponse> activities = participantPage.getContent().stream()
@@ -146,12 +171,12 @@ public class ActivityService {
                 .toList();
 
         return new ActivityPageResponse(
-                participantPage.getNumber(),
+                participantPage.getNumber() + 1,
                 participantPage.getSize(),
                 participantPage.getTotalElements(),
                 participantPage.getTotalPages(),
-                participantPage.hasPrevious() ? participantPage.getNumber() - 1 : null,
-                participantPage.hasNext() ? participantPage.getNumber() + 1 : null,
+                participantPage.hasPrevious() ? participantPage.getNumber() : null,
+                participantPage.hasNext() ? participantPage.getNumber() + 2 : null,
                 activities
         );
     }
@@ -183,7 +208,7 @@ public class ActivityService {
         activity.setTitle(request.title());
         activity.setDescription(request.description());
         activity.setType(activityType);
-        activity.setImage(encodeImage(request.image(), true));
+        activity.setImage(uploadImage(request.image(), "activities", true));
         activity.setScheduledDate(request.scheduleDate());
         activity.setCreatedAt(LocalDateTime.now());
         activity.setCompletedAt(null);
@@ -202,6 +227,8 @@ public class ActivityService {
             address.setLongitude(addressRequest.longitude());
             activityAddressRepository.save(address);
         }
+
+        grantAchievementIfExists(creator, ACHIEVEMENT_FIRST_ACTIVITY_CREATED);
 
         return mapToActivityResponse(savedActivity, true);
     }
@@ -254,7 +281,7 @@ public class ActivityService {
             activity.setDescription(request.description());
         }
 
-        String image = encodeImage(request.image(), false);
+        String image = uploadImage(request.image(), "activities", false);
         if (image != null) {
             activity.setImage(image);
         }
@@ -291,6 +318,7 @@ public class ActivityService {
         if (activity.getCompletedAt() == null) {
             activity.setCompletedAt(LocalDateTime.now());
             activityRepository.save(activity);
+            grantAchievementIfExists(activity.getCreator(), achievementFirstActivityCompleted());
         }
 
         return new MessageResponse("Atividade concluida com sucesso");
@@ -334,6 +362,13 @@ public class ActivityService {
 
         participant.setConfirmedAt(LocalDateTime.now());
         activityParticipantRepository.save(participant);
+        applyXpAndRefreshLevel(participant.getUser(), PARTICIPANT_CHECK_IN_XP);
+        applyXpAndRefreshLevel(activity.getCreator(), CREATOR_CHECK_IN_XP);
+        grantAchievementIfExists(participant.getUser(), ACHIEVEMENT_FIRST_CHECK_IN);
+
+        if ("Tecnologia".equalsIgnoreCase(activity.getType().getName())) {
+            grantAchievementIfExists(participant.getUser(), ACHIEVEMENT_FIRST_TECH_CHECK_IN);
+        }
 
         return new MessageResponse("Check-in realizado com sucesso");
     }
@@ -395,8 +430,83 @@ public class ActivityService {
         return Sort.by(direction, sortProperty);
     }
 
+    private int normalizePage(int page) {
+        return Math.max(page - 1, 0);
+    }
+
     private String generateConfirmationCode() {
         return UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+    }
+
+    private void applyXpAndRefreshLevel(User user, int xpGain) {
+        int updatedXp = user.getXp() + xpGain;
+        user.setXp(updatedXp);
+        user.setLevel(calculateLevelFromXp(updatedXp));
+        userRepository.save(user);
+        grantLevelAchievements(user);
+    }
+
+    private int calculateLevelFromXp(int totalXp) {
+        int calculatedLevel = 1;
+        int remainingXp = totalXp;
+
+        while (remainingXp >= xpRequiredForNextLevel(calculatedLevel)) {
+            remainingXp -= xpRequiredForNextLevel(calculatedLevel);
+            calculatedLevel++;
+        }
+
+        return calculatedLevel;
+    }
+
+    private int xpRequiredForNextLevel(int currentLevel) {
+        double multiplierPower = Math.pow(LEVEL_XP_MULTIPLIER, currentLevel - 1);
+        return (int) Math.ceil(BASE_XP_TO_LEVEL_UP * multiplierPower);
+    }
+
+    private void grantLevelAchievements(User user) {
+        if (user.getLevel() >= 7) {
+            grantAchievementIfExists(user, achievementLevel7());
+        }
+
+        if (user.getLevel() >= 77) {
+            grantAchievementIfExists(user, achievementLevel77());
+        }
+
+        if (user.getLevel() >= 100) {
+            grantAchievementIfExists(user, achievementLevel100());
+        }
+    }
+
+    private void grantAchievementIfExists(User user, String achievementName) {
+        achievementRepository.findByName(achievementName).ifPresent(achievement -> {
+            boolean alreadyGranted = userAchievementRepository.existsByUserIdAndAchievementId(
+                    user.getId(),
+                    achievement.getId()
+            );
+
+            if (!alreadyGranted) {
+                UserAchievement userAchievement = new UserAchievement();
+                userAchievement.setUser(user);
+                userAchievement.setAchievement(achievement);
+                userAchievementRepository.save(userAchievement);
+            }
+        });
+    }
+
+    private String achievementFirstActivityCompleted() {
+        return "Primeira atividade conclu\u00edda";
+    }
+
+    private String achievementLevel7() {
+        return "Alcan\u00e7ou level 7";
+    }
+
+    private String achievementLevel77() {
+        return "Alcan\u00e7ou level 77";
+    }
+
+    private String achievementLevel100() {
+        return "Alcan\u00e7ou level 100";
     }
 
     private List<Activity> prioritizeActivitiesByInterest(List<Activity> activities, UUID userId) {
@@ -416,7 +526,7 @@ public class ActivityService {
                 .toList();
     }
 
-    private String encodeImage(MultipartFile file, boolean required) {
+    private String uploadImage(MultipartFile file, String folder, boolean required) {
         if (file == null || file.isEmpty()) {
             if (required) {
                 throw new BusinessException(ErrorCode.E2);
@@ -430,12 +540,7 @@ public class ActivityService {
             throw new BusinessException(ErrorCode.E2);
         }
 
-        try {
-            String base64Image = Base64.getEncoder().encodeToString(file.getBytes());
-            return "data:" + contentType + ";base64," + base64Image;
-        } catch (Exception exception) {
-            throw new RuntimeException("Erro inesperado", exception);
-        }
+        return storageService.uploadImage(file, folder);
     }
 
     private ActivityPageResponse mapToActivityPageResponse(Page<Activity> pageData, boolean includeConfirmationCode) {
@@ -444,12 +549,12 @@ public class ActivityService {
                 .toList();
 
         return new ActivityPageResponse(
-                pageData.getNumber(),
+                pageData.getNumber() + 1,
                 pageData.getSize(),
                 pageData.getTotalElements(),
                 pageData.getTotalPages(),
-                pageData.hasPrevious() ? pageData.getNumber() - 1 : null,
-                pageData.hasNext() ? pageData.getNumber() + 1 : null,
+                pageData.hasPrevious() ? pageData.getNumber() : null,
+                pageData.hasNext() ? pageData.getNumber() + 2 : null,
                 activityResponses
         );
     }
