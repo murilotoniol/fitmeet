@@ -36,7 +36,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: "avatar"
-                  type: "VARCHAR(255)"
+                  type: "TEXT"
               - column:
                   name: "xp"
                   type: "INT"

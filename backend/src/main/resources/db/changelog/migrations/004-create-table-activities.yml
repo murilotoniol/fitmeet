@@ -32,7 +32,7 @@ databaseChangeLog:
                   type: "VARCHAR(255)"
               - column:
                   name: "image"
-                  type: "VARCHAR(255)"
+                  type: "TEXT"
               - column:
                   name: "scheduled_date"
                   type: "TIMESTAMP"

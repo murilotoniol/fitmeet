@@ -24,4 +24,4 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: "image"
-                  type: "VARCHAR(255)"
+                  type: "TEXT"
