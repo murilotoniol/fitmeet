@@ -17,10 +17,11 @@ import com.bootcamp.desafio_backend.repositories.PreferenceRepository;
 import com.bootcamp.desafio_backend.repositories.UserAchievementRepository;
 import com.bootcamp.desafio_backend.repositories.UserRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 
@@ -31,15 +32,21 @@ public class UserService {
     private final PreferenceRepository preferenceRepository;
     private final UserAchievementRepository userAchievementRepository;
     private final ActivityTypeRepository activityTypeRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final StorageService storageService;
 
     public UserService(UserRepository userRepository,
                        PreferenceRepository preferenceRepository,
                        UserAchievementRepository userAchievementRepository,
-                       ActivityTypeRepository activityTypeRepository) {
+                       ActivityTypeRepository activityTypeRepository,
+                       PasswordEncoder passwordEncoder,
+                       StorageService storageService) {
         this.userRepository = userRepository;
         this.preferenceRepository = preferenceRepository;
         this.userAchievementRepository = userAchievementRepository;
         this.activityTypeRepository = activityTypeRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.storageService = storageService;
     }
 
     public UserProfileResponse getUserProfile(UUID userId) {
@@ -122,15 +129,10 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.E4));
 
-        try {
-            String base64Avatar = Base64.getEncoder().encodeToString(file.getBytes());
-            String avatarData = "data:" + contentType + ";base64," + base64Avatar;
-            user.setAvatar(avatarData);
-            userRepository.save(user);
-            return new AvatarResponse(avatarData);
-        } catch (Exception e) {
-            throw new RuntimeException("Erro inesperado", e);
-        }
+        String avatarUrl = storageService.uploadImage(file, "avatars");
+        user.setAvatar(avatarUrl);
+        userRepository.save(user);
+        return new AvatarResponse(avatarUrl);
     }
 
     @Transactional
@@ -144,6 +146,10 @@ public class UserService {
 
         user.setName(request.name());
         user.setEmail(request.email());
+
+        if (StringUtils.hasText(request.password())) {
+            user.setPassword(passwordEncoder.encode(request.password()));
+        }
 
         User updatedUser = userRepository.save(user);
 
