@@ -50,7 +50,7 @@ public class ActivityController {
     @GetMapping
     public ResponseEntity<ActivityPageResponse> getActivities(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(required = false) UUID typeId,
             @RequestParam(defaultValue = "createdAt") String orderBy,
@@ -82,7 +82,7 @@ public class ActivityController {
     @GetMapping("/user/creator")
     public ResponseEntity<ActivityPageResponse> getCreatorActivities(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(defaultValue = "createdAt") String orderBy,
             @RequestParam(defaultValue = "desc") String orderDirection) {
@@ -104,7 +104,7 @@ public class ActivityController {
     @GetMapping("/user/participant")
     public ResponseEntity<ActivityPageResponse> getParticipantActivities(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(defaultValue = "createdAt") String orderBy,
             @RequestParam(defaultValue = "desc") String orderDirection) {
