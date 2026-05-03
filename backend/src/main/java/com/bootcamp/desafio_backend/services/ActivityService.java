@@ -15,7 +15,6 @@ import com.bootcamp.desafio_backend.dtos.response.ParticipantResponse;
 import com.bootcamp.desafio_backend.dtos.response.UserResponse;
 import com.bootcamp.desafio_backend.exceptions.BusinessException;
 import com.bootcamp.desafio_backend.exceptions.ErrorCode;
-import com.bootcamp.desafio_backend.models.Achievement;
 import com.bootcamp.desafio_backend.models.Activity;
 import com.bootcamp.desafio_backend.models.ActivityAddress;
 import com.bootcamp.desafio_backend.models.ActivityParticipant;
@@ -110,7 +109,7 @@ public class ActivityService {
         if (typeId != null) {
             Pageable pageable = PageRequest.of(pageIndex, pageSize, sort);
             Page<Activity> activityPage = activityRepository.findByType_IdAndDeletedAtIsNullAndCompletedAtIsNull(typeId, pageable);
-            return mapToActivityPageResponse(activityPage, false);
+            return mapToActivityPageResponse(activityPage, false, userId);
         }
 
         List<Activity> prioritizedActivities = prioritizeActivitiesByInterest(
@@ -128,7 +127,7 @@ public class ActivityService {
                 prioritizedActivities.size()
         );
 
-        return mapToActivityPageResponse(activityPage, false);
+        return mapToActivityPageResponse(activityPage, false, userId);
     }
 
     public List<ActivityResponse> getActivityAll(UUID userId, UUID typeId, String orderBy, String orderDirection) {
@@ -143,7 +142,7 @@ public class ActivityService {
         }
 
         return activities.stream()
-                .map(activity -> mapToActivityResponse(activity, false))
+                .map(activity -> mapToActivityResponse(activity, false, userId))
                 .toList();
     }
 
@@ -151,7 +150,7 @@ public class ActivityService {
         Pageable pageable = PageRequest.of(normalizePage(page), pageSize, buildSort(orderBy, orderDirection));
         Page<Activity> activityPage = activityRepository.findByCreatorIdAndDeletedAtIsNull(creatorId, pageable);
 
-        return mapToActivityPageResponse(activityPage, true);
+        return mapToActivityPageResponse(activityPage, true, creatorId);
     }
 
     public List<ActivityResponse> getActivityCreatorAll(UUID creatorId) {
@@ -209,7 +208,7 @@ public class ActivityService {
         activity.setDescription(request.description());
         activity.setType(activityType);
         activity.setImage(uploadImage(request.image(), "activities", true));
-        activity.setScheduledDate(request.scheduleDate());
+        activity.setScheduledDate(request.scheduledDate());
         activity.setCreatedAt(LocalDateTime.now());
         activity.setCompletedAt(null);
         activity.setDeletedAt(null);
@@ -286,8 +285,8 @@ public class ActivityService {
             activity.setImage(image);
         }
 
-        if (request.scheduleDate() != null) {
-            activity.setScheduledDate(request.scheduleDate());
+        if (request.scheduledDate() != null) {
+            activity.setScheduledDate(request.scheduledDate());
         }
 
         if (request.isPrivate() != null) {
@@ -543,9 +542,9 @@ public class ActivityService {
         return storageService.uploadImage(file, folder);
     }
 
-    private ActivityPageResponse mapToActivityPageResponse(Page<Activity> pageData, boolean includeConfirmationCode) {
+    private ActivityPageResponse mapToActivityPageResponse(Page<Activity> pageData, boolean includeConfirmationCode, UUID userId) {
         List<ActivityResponse> activityResponses = pageData.getContent().stream()
-                .map(activity -> mapToActivityResponse(activity, includeConfirmationCode))
+                .map(activity -> mapToActivityResponse(activity, includeConfirmationCode, userId))
                 .toList();
 
         return new ActivityPageResponse(
@@ -560,6 +559,10 @@ public class ActivityService {
     }
 
     private ActivityResponse mapToActivityResponse(Activity activity, boolean includeConfirmationCode) {
+        return mapToActivityResponse(activity, includeConfirmationCode, null);
+    }
+
+    private ActivityResponse mapToActivityResponse(Activity activity, boolean includeConfirmationCode, UUID userId) {
         ActivityAddressResponse addressResponse = activityAddressRepository.findByActivityId(activity.getId())
                 .map(address -> new ActivityAddressResponse(address.getLatitude(), address.getLongitude()))
                 .orElse(null);
@@ -571,6 +574,7 @@ public class ActivityService {
         );
 
         int participantCount = activityParticipantRepository.countByActivityId(activity.getId());
+        String subscriptionStatus = resolveSubscriptionStatus(activity.getId(), userId);
 
         return new ActivityResponse(
                 activity.getId(),
@@ -586,8 +590,20 @@ public class ActivityService {
                 activity.getCompletedAt(),
                 activity.isPrivate(),
                 creatorResponse,
-                null
+                subscriptionStatus
         );
+    }
+
+    private String resolveSubscriptionStatus(UUID activityId, UUID userId) {
+        if (userId == null) {
+            return null;
+        }
+
+        return activityParticipantRepository.findByActivityIdAndUserId(activityId, userId)
+                .map(participant -> participant.getConfirmedAt() != null
+                        ? "CHECKED_IN"
+                        : Boolean.TRUE.equals(participant.getApproved()) ? "APPROVED" : "PENDING")
+                .orElse(null);
     }
 
     private ActivityResponse mapParticipantActivityToResponse(ActivityParticipant participant) {
