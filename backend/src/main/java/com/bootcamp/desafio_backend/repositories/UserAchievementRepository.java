@@ -11,4 +11,6 @@ import java.util.UUID;
 public interface UserAchievementRepository extends JpaRepository<UserAchievement, UUID> {
 
     List<UserAchievement> findByUserId(UUID userId);
+
+    boolean existsByUserIdAndAchievementId(UUID userId, UUID achievementId);
 }
