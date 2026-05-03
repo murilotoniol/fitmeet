@@ -11,6 +11,7 @@ import com.bootcamp.desafio_backend.security.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -70,6 +71,12 @@ class AuthServiceTest {
         assertNotNull(response);
         assertEquals("jwt-token", response.token());
         assertEquals(activeUser.getEmail(), response.user().email());
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).save(captor.capture());
+        assertEquals(
+                "https://t4.ftcdn.net/jpg/02/29/75/83/360_F_229758328_7x8jwCwjtBMmC6rgFzLFhZoEpLobB6L8.jpg",
+                captor.getValue().getAvatar()
+        );
         verify(passwordEncoder).encode(request.password());
         verify(jwtService).generateToken(activeUser);
     }
