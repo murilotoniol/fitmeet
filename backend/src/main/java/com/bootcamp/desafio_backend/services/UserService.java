@@ -140,12 +140,19 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.E4));
 
-        if (!user.getEmail().equals(request.email()) && userRepository.existsByEmail(request.email())) {
+        if (StringUtils.hasText(request.email())
+                && !user.getEmail().equals(request.email())
+                && userRepository.existsByEmail(request.email())) {
             throw new BusinessException(ErrorCode.E3);
         }
 
-        user.setName(request.name());
-        user.setEmail(request.email());
+        if (StringUtils.hasText(request.name())) {
+            user.setName(request.name());
+        }
+
+        if (StringUtils.hasText(request.email())) {
+            user.setEmail(request.email());
+        }
 
         if (StringUtils.hasText(request.password())) {
             user.setPassword(passwordEncoder.encode(request.password()));
