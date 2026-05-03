@@ -3,10 +3,12 @@ package com.bootcamp.desafio_backend.config;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.servers.Server;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
 
 @Configuration
 public class OpenApiConfig {
@@ -17,10 +19,14 @@ public class OpenApiConfig {
 
         return new OpenAPI()
                 .info(new Info()
-                    .title("Desafio Backend API")
+                    .title("Desafio Backend API - Murilo Toniol Besson")
                     .version("1.0")
-                    .description("API for the final challenge of the bootcamp"))
-                .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
+                    .description("API para o desafio final do bootcamp."))
+                .servers(List.of(
+                        new Server()
+                                .url("http://localhost:8080")
+                                .description("Servidor local")
+                ))
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName, new SecurityScheme()
                                 .name(securitySchemeName)
