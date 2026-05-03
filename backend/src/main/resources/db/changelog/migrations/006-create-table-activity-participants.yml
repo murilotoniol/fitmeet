@@ -23,6 +23,12 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
+                  name: "created_at"
+                  type: "TIMESTAMP"
+                  defaultValueComputed: "CURRENT_TIMESTAMP"
+                  constraints:
+                    nullable: false
+              - column:
                   name: "approved"
                   type: "BOOLEAN"
                   constraints:

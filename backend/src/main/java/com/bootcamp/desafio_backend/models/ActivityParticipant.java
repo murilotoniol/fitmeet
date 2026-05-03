@@ -35,4 +35,7 @@ public class ActivityParticipant {
 
     @Column(name = "confirmed_at")
     private LocalDateTime confirmedAt;
+
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
 }

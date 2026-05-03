@@ -150,7 +150,7 @@ public class ActivityService {
         Pageable pageable = PageRequest.of(normalizePage(page), pageSize, buildSort(orderBy, orderDirection));
         Page<Activity> activityPage = activityRepository.findByCreatorIdAndDeletedAtIsNull(creatorId, pageable);
 
-        return mapToActivityPageResponse(activityPage, true, creatorId);
+        return mapToActivityPageResponse(activityPage, true, null);
     }
 
     public List<ActivityResponse> getActivityCreatorAll(UUID creatorId) {
@@ -256,6 +256,7 @@ public class ActivityService {
         participant.setUser(user);
         participant.setApproved(!activity.isPrivate());
         participant.setConfirmedAt(null);
+        participant.setCreatedAt(LocalDateTime.now());
 
         activityParticipantRepository.save(participant);
         return new MessageResponse("Inscricao realizada com sucesso");
@@ -659,7 +660,7 @@ public class ActivityService {
                 userResponse,
                 participant.getApproved(),
                 participant.getConfirmedAt() != null,
-                participant.getConfirmedAt()
+                participant.getCreatedAt()
         );
     }
 }
