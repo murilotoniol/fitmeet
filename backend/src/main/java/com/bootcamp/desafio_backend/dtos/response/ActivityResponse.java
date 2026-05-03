@@ -1,5 +1,6 @@
 package com.bootcamp.desafio_backend.dtos.response;
 
+import com.bootcamp.desafio_backend.enums.ParticipationStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.time.LocalDateTime;
@@ -23,6 +24,6 @@ public record ActivityResponse(
         LocalDateTime completedAt,
         boolean isPrivate,
         ActivityCreatorResponse creator,
-        String userSubscriptionStatus
+        ParticipationStatus userSubscriptionStatus
 ) {
 }

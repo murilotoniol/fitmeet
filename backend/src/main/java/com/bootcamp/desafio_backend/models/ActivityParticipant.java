@@ -1,5 +1,6 @@
 package com.bootcamp.desafio_backend.models;
 
+import com.bootcamp.desafio_backend.enums.ParticipationStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,6 +33,10 @@ public class ActivityParticipant {
 
     @Column(name = "approved", nullable = false)
     private Boolean approved;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private ParticipationStatus status;
 
     @Column(name = "confirmed_at")
     private LocalDateTime confirmedAt;

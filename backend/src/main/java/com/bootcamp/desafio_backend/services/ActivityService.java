@@ -13,6 +13,7 @@ import com.bootcamp.desafio_backend.dtos.response.ActivityTypeResponse;
 import com.bootcamp.desafio_backend.dtos.response.MessageResponse;
 import com.bootcamp.desafio_backend.dtos.response.ParticipantResponse;
 import com.bootcamp.desafio_backend.dtos.response.UserResponse;
+import com.bootcamp.desafio_backend.enums.ParticipationStatus;
 import com.bootcamp.desafio_backend.exceptions.BusinessException;
 import com.bootcamp.desafio_backend.exceptions.ErrorCode;
 import com.bootcamp.desafio_backend.models.Activity;
@@ -255,6 +256,7 @@ public class ActivityService {
         participant.setActivity(activity);
         participant.setUser(user);
         participant.setApproved(!activity.isPrivate());
+        participant.setStatus(activity.isPrivate() ? ParticipationStatus.PENDING : ParticipationStatus.APPROVED);
         participant.setConfirmedAt(null);
         participant.setCreatedAt(LocalDateTime.now());
 
@@ -333,6 +335,9 @@ public class ActivityService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.E1));
 
         participant.setApproved(request.approved());
+        participant.setStatus(Boolean.TRUE.equals(request.approved())
+                ? ParticipationStatus.APPROVED
+                : ParticipationStatus.REJECTED);
         ActivityParticipant savedParticipant = activityParticipantRepository.save(participant);
         return mapToParticipantResponse(savedParticipant);
     }
@@ -348,7 +353,7 @@ public class ActivityService {
         ActivityParticipant participant = activityParticipantRepository.findByActivityIdAndUserId(activityId, userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.E9));
 
-        if (!Boolean.TRUE.equals(participant.getApproved())) {
+        if (participant.getStatus() != ParticipationStatus.APPROVED) {
             throw new BusinessException(ErrorCode.E9);
         }
 
@@ -361,6 +366,7 @@ public class ActivityService {
         }
 
         participant.setConfirmedAt(LocalDateTime.now());
+        participant.setStatus(ParticipationStatus.CHECKED_IN);
         activityParticipantRepository.save(participant);
         applyXpAndRefreshLevel(participant.getUser(), PARTICIPANT_CHECK_IN_XP);
         applyXpAndRefreshLevel(activity.getCreator(), CREATOR_CHECK_IN_XP);
@@ -575,7 +581,7 @@ public class ActivityService {
         );
 
         int participantCount = activityParticipantRepository.countByActivityId(activity.getId());
-        String subscriptionStatus = resolveSubscriptionStatus(activity.getId(), userId);
+        ParticipationStatus subscriptionStatus = resolveSubscriptionStatus(activity.getId(), userId);
 
         return new ActivityResponse(
                 activity.getId(),
@@ -595,23 +601,33 @@ public class ActivityService {
         );
     }
 
-    private String resolveSubscriptionStatus(UUID activityId, UUID userId) {
+    private ParticipationStatus resolveSubscriptionStatus(UUID activityId, UUID userId) {
         if (userId == null) {
             return null;
         }
 
         return activityParticipantRepository.findByActivityIdAndUserId(activityId, userId)
-                .map(participant -> participant.getConfirmedAt() != null
-                        ? "CHECKED_IN"
-                        : Boolean.TRUE.equals(participant.getApproved()) ? "APPROVED" : "PENDING")
+                .map(this::resolveParticipationStatus)
                 .orElse(null);
+    }
+
+    private ParticipationStatus resolveParticipationStatus(ActivityParticipant participant) {
+        if (participant.getConfirmedAt() != null) {
+            return ParticipationStatus.CHECKED_IN;
+        }
+
+        if (participant.getStatus() != null) {
+            return participant.getStatus();
+        }
+
+        return Boolean.TRUE.equals(participant.getApproved())
+                ? ParticipationStatus.APPROVED
+                : ParticipationStatus.PENDING;
     }
 
     private ActivityResponse mapParticipantActivityToResponse(ActivityParticipant participant) {
         Activity activity = participant.getActivity();
-        String status = participant.getConfirmedAt() != null
-                ? "CHECKED_IN"
-                : Boolean.TRUE.equals(participant.getApproved()) ? "APPROVED" : "PENDING";
+        ParticipationStatus status = resolveParticipationStatus(participant);
 
         ActivityAddressResponse addressResponse = activityAddressRepository.findByActivityId(activity.getId())
                 .map(address -> new ActivityAddressResponse(address.getLatitude(), address.getLongitude()))

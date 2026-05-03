@@ -29,6 +29,12 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
+                  name: "status"
+                  type: "VARCHAR(30)"
+                  defaultValue: "PENDING"
+                  constraints:
+                    nullable: false
+              - column:
                   name: "approved"
                   type: "BOOLEAN"
                   constraints:
