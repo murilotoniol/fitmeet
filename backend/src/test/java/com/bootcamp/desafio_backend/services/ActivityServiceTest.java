@@ -178,6 +178,32 @@ class ActivityServiceTest {
     }
 
     @Test
+    void getActivityParticipantInPage_WhenOrderingByType_UsesNestedActivityTypeNameSort() {
+        Page<ActivityParticipant> page = new PageImpl<>(
+                List.of(),
+                PageRequest.of(0, 10),
+                0
+        );
+        ArgumentCaptor<PageRequest> pageableCaptor = ArgumentCaptor.forClass(PageRequest.class);
+
+        when(activityParticipantRepository.findByUserIdAndActivityDeletedAtIsNull(eq(participantUserId), any(PageRequest.class)))
+                .thenReturn(page);
+
+        activityService.getActivityParticipantInPage(
+                participantUserId,
+                1,
+                10,
+                "type",
+                "asc"
+        );
+
+        verify(activityParticipantRepository).findByUserIdAndActivityDeletedAtIsNull(eq(participantUserId), pageableCaptor.capture());
+        Sort.Order order = pageableCaptor.getValue().getSort().getOrderFor("activity.type.name");
+        assertNotNull(order);
+        assertTrue(order.isAscending());
+    }
+
+    @Test
     void getActivitiesInPage_WithoutTypeFilter_PrioritizesUserInterests() {
         UUID preferredTypeId = UUID.randomUUID();
 
@@ -232,6 +258,52 @@ class ActivityServiceTest {
         assertEquals(2, response.activities().size());
         assertEquals(preferredActivity.getId(), response.activities().get(0).id());
         assertEquals(nonPreferredActivity.getId(), response.activities().get(1).id());
+    }
+
+    @Test
+    void getActivitiesInPage_WhenOrderingByType_UsesTypeNameSort() {
+        ArgumentCaptor<Sort> sortCaptor = ArgumentCaptor.forClass(Sort.class);
+
+        when(preferenceRepository.findByUserId(participantUserId)).thenReturn(List.of());
+        when(activityRepository.findByDeletedAtIsNullAndCompletedAtIsNull(any(Sort.class)))
+                .thenReturn(List.of());
+
+        activityService.getActivitiesInPage(
+                participantUserId,
+                1,
+                10,
+                null,
+                "type",
+                "asc"
+        );
+
+        verify(activityRepository).findByDeletedAtIsNullAndCompletedAtIsNull(sortCaptor.capture());
+        Sort.Order order = sortCaptor.getValue().getOrderFor("type.name");
+        assertNotNull(order);
+        assertTrue(order.isAscending());
+    }
+
+    @Test
+    void getActivitiesInPage_WhenOrderByIsInvalid_FallsBackToCreatedAt() {
+        ArgumentCaptor<Sort> sortCaptor = ArgumentCaptor.forClass(Sort.class);
+
+        when(preferenceRepository.findByUserId(participantUserId)).thenReturn(List.of());
+        when(activityRepository.findByDeletedAtIsNullAndCompletedAtIsNull(any(Sort.class)))
+                .thenReturn(List.of());
+
+        activityService.getActivitiesInPage(
+                participantUserId,
+                1,
+                10,
+                null,
+                "banana",
+                "asc"
+        );
+
+        verify(activityRepository).findByDeletedAtIsNullAndCompletedAtIsNull(sortCaptor.capture());
+        Sort.Order order = sortCaptor.getValue().getOrderFor("createdAt");
+        assertNotNull(order);
+        assertTrue(order.isAscending());
     }
 
     @Test

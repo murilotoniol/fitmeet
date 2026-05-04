@@ -295,23 +295,27 @@ public class ActivityQueryService {
     }
 
     private Sort buildSort(String orderBy, String orderDirection) {
-        String sortProperty = (orderBy != null && !orderBy.isBlank()) ? orderBy : "createdAt";
+        String sortProperty = resolveActivitySortProperty(orderBy);
         Sort.Direction direction = "asc".equalsIgnoreCase(orderDirection) ? Sort.Direction.ASC : Sort.Direction.DESC;
         return Sort.by(direction, sortProperty);
     }
 
     private Sort buildParticipantSort(String orderBy, String orderDirection) {
-        String requestedProperty = (orderBy != null && !orderBy.isBlank()) ? orderBy : "createdAt";
-        String sortProperty = switch (requestedProperty) {
-            case "title" -> "activity.title";
-            case "scheduledDate" -> "activity.scheduledDate";
-            case "completedAt" -> "activity.completedAt";
-            case "createdAt" -> "activity.createdAt";
-            default -> "activity." + requestedProperty;
-        };
-
+        String sortProperty = "activity." + resolveActivitySortProperty(orderBy);
         Sort.Direction direction = "asc".equalsIgnoreCase(orderDirection) ? Sort.Direction.ASC : Sort.Direction.DESC;
         return Sort.by(direction, sortProperty);
+    }
+
+    private String resolveActivitySortProperty(String orderBy) {
+        if (orderBy == null || orderBy.isBlank()) {
+            return "createdAt";
+        }
+
+        return switch (orderBy) {
+            case "createdAt", "scheduledDate", "title" -> orderBy;
+            case "type" -> "type.name";
+            default -> "createdAt";
+        };
     }
 
     private int normalizePage(int page) {
