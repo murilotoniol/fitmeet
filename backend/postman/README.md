@@ -36,7 +36,10 @@ Execute as pastas nesta ordem:
 
 ## Observações
 
+- Execute a collection apenas depois que a API estiver rodando em `http://localhost:8080`.
+- Os usuários de teste são criados pela própria collection; eles não são inseridos por seed no banco.
 - Os requests de cadastro podem retornar `409 Conflict` se os usuários já existirem. Nesse caso, continue o fluxo a partir dos logins.
 - Os logins salvam automaticamente os tokens no environment.
 - A criação de atividade salva automaticamente `activityId` e `confirmationCode`.
 - A listagem de participantes salva automaticamente `participantRegistrationId`, usado na aprovação.
+- Para repetir o fluxo do zero, limpe os volumes com `docker compose down -v` e suba novamente com `docker compose up --build`.
