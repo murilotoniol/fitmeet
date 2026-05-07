@@ -115,6 +115,7 @@ public class UserService {
         preferenceRepository.saveAll(newPreferences);
     }
 
+    @Transactional
     public AvatarResponse updateAvatar(UUID userId, MultipartFile file) {
         if (file.isEmpty()) {
             throw new BusinessException(ErrorCode.E2);
