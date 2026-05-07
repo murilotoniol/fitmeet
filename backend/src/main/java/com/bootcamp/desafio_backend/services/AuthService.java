@@ -43,19 +43,20 @@ public class AuthService {
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
+        String normalizedCpf = normalizeCpf(request.cpf());
 
         if (userRepository.existsByEmail(request.email())) {
             throw new BusinessException(ErrorCode.E3);
         }
 
-        if (userRepository.existsByCpf(request.cpf())) {
+        if (userRepository.existsByCpf(normalizedCpf)) {
             throw new BusinessException(ErrorCode.E3);
         }
 
         User newUser = new User();
         newUser.setName(request.name());
         newUser.setEmail(request.email());
-        newUser.setCpf(request.cpf());
+        newUser.setCpf(normalizedCpf);
         newUser.setPassword(passwordEncoder.encode(request.password()));
         newUser.setAvatar(DEFAULT_AVATAR_URL);
 
@@ -64,6 +65,10 @@ public class AuthService {
         String token = jwtService.generateToken(savedUser);
 
         return new AuthResponse(token, toUserResponse(savedUser));
+    }
+
+    private String normalizeCpf(String cpf) {
+        return cpf.replaceAll("\\D", "");
     }
 
     public AuthResponse signIn(SignInRequest request) {

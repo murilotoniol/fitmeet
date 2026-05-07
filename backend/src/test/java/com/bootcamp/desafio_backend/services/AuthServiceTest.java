@@ -82,6 +82,24 @@ class AuthServiceTest {
     }
 
     @Test
+    void register_WithFormattedCpf_NormalizesCpfBeforeSaving() {
+        RegisterRequest request = new RegisterRequest("Test User", "test@test.com", "123.456.789-01", "123456");
+
+        when(userRepository.existsByEmail(request.email())).thenReturn(false);
+        when(userRepository.existsByCpf("12345678901")).thenReturn(false);
+        when(passwordEncoder.encode(request.password())).thenReturn("encoded-password");
+        when(userRepository.save(any(User.class))).thenReturn(activeUser);
+        when(jwtService.generateToken(activeUser)).thenReturn("jwt-token");
+
+        authService.register(request);
+
+        ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
+        verify(userRepository).existsByCpf("12345678901");
+        verify(userRepository).save(captor.capture());
+        assertEquals("12345678901", captor.getValue().getCpf());
+    }
+
+    @Test
     void register_DuplicateEmail_ThrowsConflict() {
         RegisterRequest request = new RegisterRequest("Test User", "test@test.com", "12345678901", "123456");
 
