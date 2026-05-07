@@ -22,7 +22,9 @@ public enum ErrorCode {
     E17("Apenas o criador da atividade pode concluí-la.", HttpStatus.FORBIDDEN),
     E18("Não é possível cancelar sua inscrição, pois sua presença já foi confirmada.", HttpStatus.FORBIDDEN),
     E19("Autenticação necessária.", HttpStatus.UNAUTHORIZED),
-    E20("Erro inesperado.", HttpStatus.INTERNAL_SERVER_ERROR);
+    E20("Erro inesperado.", HttpStatus.INTERNAL_SERVER_ERROR),
+    E21("Atividade não encontrada.", HttpStatus.NOT_FOUND),
+    E22("Participante não encontrado.", HttpStatus.NOT_FOUND);
 
     private final String message;
     private final HttpStatus status;

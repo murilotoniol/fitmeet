@@ -90,7 +90,7 @@ public class ParticipationService {
         validateCreator(activity, userId, ErrorCode.E16);
 
         ActivityParticipant participant = activityParticipantRepository.findByIdAndActivityId(request.participantId(), activityId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.E1));
+                .orElseThrow(() -> new BusinessException(ErrorCode.E22));
 
         participant.setApproved(request.approved());
         participant.setStatus(Boolean.TRUE.equals(request.approved())
@@ -141,7 +141,7 @@ public class ParticipationService {
         findActiveActivityById(activityId);
 
         ActivityParticipant participant = activityParticipantRepository.findByActivityIdAndUserId(activityId, userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.E1));
+                .orElseThrow(() -> new BusinessException(ErrorCode.E22));
 
         if (participant.getConfirmedAt() != null) {
             throw new BusinessException(ErrorCode.E18);
@@ -153,7 +153,7 @@ public class ParticipationService {
 
     private Activity findActiveActivityById(UUID activityId) {
         return activityRepository.findByIdAndDeletedAtIsNull(activityId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.E1));
+                .orElseThrow(() -> new BusinessException(ErrorCode.E21));
     }
 
     private void validateCreator(Activity activity, UUID userId, ErrorCode errorCode) {

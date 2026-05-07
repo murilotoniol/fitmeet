@@ -220,7 +220,7 @@ public class ActivityService {
 
     private Activity findActiveActivityById(UUID activityId) {
         return activityRepository.findByIdAndDeletedAtIsNull(activityId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.E1));
+                .orElseThrow(() -> new BusinessException(ErrorCode.E21));
     }
 
     private void validateCreator(Activity activity, UUID userId, ErrorCode errorCode) {
