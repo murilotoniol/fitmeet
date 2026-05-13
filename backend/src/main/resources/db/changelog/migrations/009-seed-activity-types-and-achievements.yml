@@ -17,7 +17,7 @@ databaseChangeLog:
                   value: "Atividades relacionadas a práticas esportivas e exercícios físicos"
               - column:
                   name: "image"
-                  value: ""
+                  value: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Video-Game-Controller-Icon.svg/3840px-Video-Game-Controller-Icon.svg.png"
         - insert:
             tableName: "activity_types"
             columns:
@@ -32,7 +32,7 @@ databaseChangeLog:
                   value: "Atividades relacionadas a tecnologia, programação e inovação"
               - column:
                   name: "image"
-                  value: ""
+                  value: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Video-Game-Controller-Icon.svg/3840px-Video-Game-Controller-Icon.svg.png"
         - insert:
             tableName: "activity_types"
             columns:
@@ -47,7 +47,7 @@ databaseChangeLog:
                   value: "Atividades relacionadas a ensino, aprendizado e capacitação"
               - column:
                   name: "image"
-                  value: ""
+                  value: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Video-Game-Controller-Icon.svg/3840px-Video-Game-Controller-Icon.svg.png"
         - insert:
             tableName: "activity_types"
             columns:
@@ -62,7 +62,7 @@ databaseChangeLog:
                   value: "Atividades relacionadas a música, instrumentos e apresentações musicais"
               - column:
                   name: "image"
-                  value: ""
+                  value: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Video-Game-Controller-Icon.svg/3840px-Video-Game-Controller-Icon.svg.png"
         - insert:
             tableName: "activity_types"
             columns:
@@ -77,7 +77,7 @@ databaseChangeLog:
                   value: "Atividades relacionadas a jogos eletrônicos e competições de e-sports"
               - column:
                   name: "image"
-                  value: ""
+                  value: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Video-Game-Controller-Icon.svg/3840px-Video-Game-Controller-Icon.svg.png"
         - insert:
             tableName: "activity_types"
             columns:
@@ -92,7 +92,7 @@ databaseChangeLog:
                   value: "Atividades relacionadas a trabalho voluntário e ações sociais"
               - column:
                   name: "image"
-                  value: ""
+                  value: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Video-Game-Controller-Icon.svg/3840px-Video-Game-Controller-Icon.svg.png"
 
   - changeSet:
       id: "09-seed-achievements"
