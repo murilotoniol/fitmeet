@@ -1,0 +1,66 @@
+:root {
+  --font-heading: "Bebas Neue", sans-serif;
+  --font-body: "DM Sans", sans-serif;
+
+  --text-title-size: 32px;
+  --text-title-line: 36px;
+  --text-title-weight: 400;
+
+  --text-subtitle-size: 28px;
+  --text-subtitle-line: 32px;
+  --text-subtitle-weight: 400;
+
+  --text-body-size: 16px;
+  --text-body-line: 24px;
+  --text-body-weight: 400;
+
+  --text-label-size: 16px;
+  --text-label-line: 20px;
+  --text-label-weight: 600;
+
+  --text-sm-size: 14px;
+  --text-sm-line: 16px;
+  --text-sm-weight: 400;
+
+  --text-xs-size: 12px;
+  --text-xs-line: 16px;
+  --text-xs-weight: 400;
+
+  --color-border: #e5e5e5;
+  --color-border-focus: #d4d4d4;
+  --color-title: #171717;
+  --color-text: #404040;
+  --color-placeholder: #a1a1a1;
+  --color-danger: #e7000b;
+  --color-primary-500: #00bc7d;
+  --color-primary-600: #009966;
+  --color-white: #ffffff;
+  --color-page: #fcfcfc;
+  --color-panel: #ffffff;
+  --color-divider: #707070;
+  --color-highlight: #fbbc05;
+  --color-private: #191919;
+  --color-lilac: #9747ff;
+
+  --gradient-primary: linear-gradient(90deg, #00bc7d 0%, #009966 100%);
+  --gradient-surface: linear-gradient(180deg, #ffffff 0%, #fcfcfc 100%);
+
+  --radius-xs: 4px;
+  --radius-sm: 5px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+
+  --shadow-card: 0 8px 24px rgb(23 23 23 / 0.06);
+  --shadow-soft: 0 12px 32px rgb(23 23 23 / 0.08);
+  --shadow-focus: 0 0 0 3px rgb(0 188 125 / 0.18);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+}
