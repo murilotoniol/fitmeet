@@ -18,6 +18,8 @@ spring:
 
 app:
   public-url: ${APP_PUBLIC_URL:http://localhost:8080}
+  storage:
+    local-dir: ${APP_STORAGE_LOCAL_DIR:/app/storage}
 
 jwt:
   secret: ${JWT_SECRET:change-this-secret}
