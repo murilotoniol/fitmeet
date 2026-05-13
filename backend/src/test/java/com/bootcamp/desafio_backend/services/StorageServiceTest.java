@@ -1,6 +1,7 @@
 package com.bootcamp.desafio_backend.services;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -18,6 +19,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import java.util.Optional;
+import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,9 +35,17 @@ class StorageServiceTest {
     @Mock
     private S3Client s3Client;
 
+    @TempDir
+    Path tempDir;
+
     @Test
     void uploadImage_SavesFileAndReturnsApiImageUrl() {
-        StorageService storageService = new StorageService(s3Client, "bucket", "http://localhost:8080");
+        StorageService storageService = new StorageService(
+                s3Client,
+                "bucket",
+                "http://localhost:8080",
+                tempDir.toString()
+        );
         MockMultipartFile file = new MockMultipartFile("image", "image.png", "image/png", "content".getBytes());
 
         when(s3Client.headBucket(any(HeadBucketRequest.class))).thenReturn(HeadBucketResponse.builder().build());
@@ -56,7 +66,12 @@ class StorageServiceTest {
 
     @Test
     void findImageByFileName_WhenExistsInActivities_ReturnsImage() {
-        StorageService storageService = new StorageService(s3Client, "bucket", "http://localhost:8080");
+        StorageService storageService = new StorageService(
+                s3Client,
+                "bucket",
+                "http://localhost:8080",
+                tempDir.toString()
+        );
         byte[] content = "image".getBytes();
 
         when(s3Client.getObjectAsBytes(any(GetObjectRequest.class))).thenReturn(
@@ -79,7 +94,12 @@ class StorageServiceTest {
 
     @Test
     void findImageByFileName_WhenNotFound_ReturnsEmpty() {
-        StorageService storageService = new StorageService(s3Client, "bucket", "http://localhost:8080");
+        StorageService storageService = new StorageService(
+                s3Client,
+                "bucket",
+                "http://localhost:8080",
+                tempDir.toString()
+        );
 
         when(s3Client.getObjectAsBytes(any(GetObjectRequest.class))).thenThrow(
                 S3Exception.builder().statusCode(404).build()
