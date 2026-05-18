@@ -6,6 +6,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record ActivityAddressResponse(
 
         Double latitude,
-        Double longitude
+        Double longitude,
+        String street,
+        String number,
+        String neighborhood,
+        String city,
+        String state
 ) {
 }

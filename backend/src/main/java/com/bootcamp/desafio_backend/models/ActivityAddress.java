@@ -30,4 +30,19 @@ public class ActivityAddress {
 
     @Column(name = "longitude", nullable = false)
     private Double longitude;
+
+    @Column(name = "street")
+    private String street;
+
+    @Column(name = "number")
+    private String number;
+
+    @Column(name = "neighborhood")
+    private String neighborhood;
+
+    @Column(name = "city")
+    private String city;
+
+    @Column(name = "state")
+    private String state;
 }

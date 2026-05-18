@@ -92,6 +92,14 @@ public class ActivityService {
         return participationService.getParticipants(activityId, userId);
     }
 
+    public ActivityResponse getActivity(UUID activityId, UUID userId) {
+        Activity activity = activityRepository.findById(activityId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.E21));
+        boolean includeConfirmationCode = activity.getCreator().getId().equals(userId);
+
+        return activityQueryService.mapToActivityResponse(activity, includeConfirmationCode, userId);
+    }
+
     @Transactional
     public ActivityResponse create(UUID creatorId, CreateActivityRequest request) {
         User creator = userRepository.findById(creatorId)
@@ -121,6 +129,11 @@ public class ActivityService {
             address.setActivity(savedActivity);
             address.setLatitude(addressRequest.latitude());
             address.setLongitude(addressRequest.longitude());
+            address.setStreet(addressRequest.street());
+            address.setNumber(addressRequest.number());
+            address.setNeighborhood(addressRequest.neighborhood());
+            address.setCity(addressRequest.city());
+            address.setState(addressRequest.state());
             activityAddressRepository.save(address);
         }
 
@@ -173,9 +186,14 @@ public class ActivityService {
                         ActivityAddress newAddress = new ActivityAddress();
                         newAddress.setActivity(updatedActivity);
                         return newAddress;
-                    });
+            });
             address.setLatitude(addressRequest.latitude());
             address.setLongitude(addressRequest.longitude());
+            address.setStreet(addressRequest.street());
+            address.setNumber(addressRequest.number());
+            address.setNeighborhood(addressRequest.neighborhood());
+            address.setCity(addressRequest.city());
+            address.setState(addressRequest.state());
             activityAddressRepository.save(address);
         }
         return activityQueryService.mapToActivityResponse(updatedActivity, true);

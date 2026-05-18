@@ -152,7 +152,15 @@ public class ActivityQueryService {
 
     public ActivityResponse mapToActivityResponse(Activity activity, boolean includeConfirmationCode, UUID userId) {
         ActivityAddressResponse addressResponse = activityAddressRepository.findByActivityId(activity.getId())
-                .map(address -> new ActivityAddressResponse(address.getLatitude(), address.getLongitude()))
+                .map(address -> new ActivityAddressResponse(
+                        address.getLatitude(),
+                        address.getLongitude(),
+                        address.getStreet(),
+                        address.getNumber(),
+                        address.getNeighborhood(),
+                        address.getCity(),
+                        address.getState()
+                ))
                 .orElse(null);
 
         ActivityCreatorResponse creatorResponse = new ActivityCreatorResponse(
@@ -176,6 +184,7 @@ public class ActivityQueryService {
                 activity.getScheduledDate(),
                 activity.getCreatedAt(),
                 activity.getCompletedAt(),
+                activity.getDeletedAt(),
                 activity.isPrivate(),
                 creatorResponse,
                 subscriptionStatus
@@ -248,7 +257,15 @@ public class ActivityQueryService {
         ParticipationStatus status = resolveParticipationStatus(participant);
 
         ActivityAddressResponse addressResponse = activityAddressRepository.findByActivityId(activity.getId())
-                .map(address -> new ActivityAddressResponse(address.getLatitude(), address.getLongitude()))
+                .map(address -> new ActivityAddressResponse(
+                        address.getLatitude(),
+                        address.getLongitude(),
+                        address.getStreet(),
+                        address.getNumber(),
+                        address.getNeighborhood(),
+                        address.getCity(),
+                        address.getState()
+                ))
                 .orElse(null);
 
         ActivityCreatorResponse creatorResponse = new ActivityCreatorResponse(
@@ -271,6 +288,7 @@ public class ActivityQueryService {
                 activity.getScheduledDate(),
                 activity.getCreatedAt(),
                 activity.getCompletedAt(),
+                activity.getDeletedAt(),
                 activity.isPrivate(),
                 creatorResponse,
                 status
