@@ -41,6 +41,26 @@
     font: inherit;
   }
 
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  a[href],
+  select:not(:disabled),
+  input[type="button"]:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="date"]:not(:disabled),
+  input[type="datetime-local"]:not(:disabled),
+  input[type="file"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  input[type="submit"]:not(:disabled),
+  label:has(input[type="file"]:not(:disabled)) {
+    cursor: pointer;
+  }
+
+  input:not([type="button"]):not([type="checkbox"]):not([type="date"]):not([type="datetime-local"]):not([type="file"]):not([type="radio"]):not([type="submit"]):not(:disabled),
+  textarea:not(:disabled) {
+    cursor: text;
+  }
+
   img {
     display: block;
     max-width: 100%;
@@ -49,6 +69,11 @@
   :focus-visible {
     outline: none;
     box-shadow: var(--shadow-focus);
+  }
+
+  .leaflet-container {
+    width: 100% !important;
+    max-width: 100%;
   }
 }
 
