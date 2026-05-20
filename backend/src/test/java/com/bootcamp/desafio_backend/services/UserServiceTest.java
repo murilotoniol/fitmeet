@@ -148,7 +148,7 @@ class UserServiceTest {
         List<UUID> typeIds = List.of(typeId);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
-        when(activityTypeRepository.findAllById(typeIds)).thenReturn(List.of()); // Not found
+        when(activityTypeRepository.findAllById(typeIds)).thenReturn(List.of());
 
         BusinessException exception = assertThrows(BusinessException.class, () ->
                 userService.definePreferences(userId, typeIds));

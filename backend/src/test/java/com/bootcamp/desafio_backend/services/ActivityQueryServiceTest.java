@@ -583,7 +583,7 @@ class ActivityQueryServiceTest {
         Activity act = new Activity();
         act.setId(UUID.randomUUID());
         act.setTitle(title);
-        act.setDescription("Descricao " + title);
+        act.setDescription("Descrição " + title);
         act.setType(type);
         act.setImage("image.png");
         act.setScheduledDate(LocalDateTime.now().plusDays(1));

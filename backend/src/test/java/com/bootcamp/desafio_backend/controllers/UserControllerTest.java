@@ -100,7 +100,7 @@ class UserControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("Preferencias atualizadas com sucesso", response.getBody().message());
+        assertEquals("Preferências atualizadas com sucesso.", response.getBody().message());
         verify(userService).definePreferences(userId, request);
     }
 
