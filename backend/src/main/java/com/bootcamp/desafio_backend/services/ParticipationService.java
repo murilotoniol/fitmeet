@@ -45,10 +45,19 @@ public class ParticipationService {
     }
 
     public List<ParticipantResponse> getParticipants(UUID activityId, UUID userId) {
-        Activity activity = findActiveActivityById(activityId);
-        validateCreator(activity, userId, ErrorCode.E16);
+        Activity activity = activityRepository.findById(activityId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.E21));
+
+        boolean canViewParticipants =
+                activity.getCreator().getId().equals(userId) ||
+                activityParticipantRepository.existsByActivityIdAndUserId(activityId, userId);
+
+        if (!canViewParticipants) {
+            throw new BusinessException(ErrorCode.E16);
+        }
 
         return activityParticipantRepository.findByActivityId(activityId).stream()
+                .filter(participant -> participant.getStatus() != ParticipationStatus.REJECTED)
                 .map(activityQueryService::mapToParticipantResponse)
                 .toList();
     }
@@ -81,7 +90,7 @@ public class ParticipationService {
         participant.setCreatedAt(LocalDateTime.now());
 
         activityParticipantRepository.save(participant);
-        return new MessageResponse("Inscricao realizada com sucesso");
+        return new MessageResponse("Inscrição realizada com sucesso.");
     }
 
     @Transactional
@@ -148,7 +157,7 @@ public class ParticipationService {
         }
 
         activityParticipantRepository.delete(participant);
-        return new MessageResponse("Inscricao cancelada com sucesso");
+        return new MessageResponse("Inscrição cancelada com sucesso.");
     }
 
     private Activity findActiveActivityById(UUID activityId) {

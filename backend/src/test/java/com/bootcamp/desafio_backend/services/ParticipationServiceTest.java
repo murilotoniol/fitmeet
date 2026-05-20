@@ -111,7 +111,7 @@ class ParticipationServiceTest {
 
     @Test
     void getParticipants_AsCreator_ReturnsParticipantList() {
-        stubFindActiveActivity();
+        stubFindActivity();
         when(activityParticipantRepository.findByActivityId(activityId)).thenReturn(List.of(participant));
         stubMapParticipantResponse(participant);
 
@@ -123,18 +123,41 @@ class ParticipationServiceTest {
     }
 
     @Test
+    void getParticipants_WhenParticipantWasRejected_DoesNotReturnRejectedParticipant() {
+        ActivityParticipant rejectedParticipant = new ActivityParticipant();
+        rejectedParticipant.setId(UUID.randomUUID());
+        rejectedParticipant.setActivity(activity);
+        rejectedParticipant.setUser(buildUser(UUID.randomUUID(), "Rejeitado", "rejeitado@test.com"));
+        rejectedParticipant.setApproved(false);
+        rejectedParticipant.setStatus(ParticipationStatus.REJECTED);
+        rejectedParticipant.setCreatedAt(LocalDateTime.now().minusHours(1));
+
+        stubFindActivity();
+        when(activityParticipantRepository.findByActivityId(activityId))
+                .thenReturn(List.of(participant, rejectedParticipant));
+        stubMapParticipantResponse(participant);
+
+        List<ParticipantResponse> responses = participationService.getParticipants(activityId, creatorId);
+
+        assertEquals(1, responses.size());
+        assertEquals(participantId, responses.get(0).id());
+    }
+
+    @Test
     void getParticipants_AsNonCreator_ThrowsE16() {
-        stubFindActiveActivity();
+        UUID strangerId = UUID.randomUUID();
+        stubFindActivity();
+        when(activityParticipantRepository.existsByActivityIdAndUserId(activityId, strangerId)).thenReturn(false);
 
         BusinessException exception = assertThrows(BusinessException.class,
-                () -> participationService.getParticipants(activityId, participantUserId));
+                () -> participationService.getParticipants(activityId, strangerId));
 
         assertEquals(ErrorCode.E16, exception.getErrorCode());
     }
 
     @Test
     void getParticipants_ActivityNotFound_ThrowsE21() {
-        when(activityRepository.findByIdAndDeletedAtIsNull(activityId)).thenReturn(Optional.empty());
+        when(activityRepository.findById(activityId)).thenReturn(Optional.empty());
 
         BusinessException exception = assertThrows(BusinessException.class,
                 () -> participationService.getParticipants(activityId, creatorId));
@@ -153,7 +176,7 @@ class ParticipationServiceTest {
         ArgumentCaptor<ActivityParticipant> captor = ArgumentCaptor.forClass(ActivityParticipant.class);
         verify(activityParticipantRepository).save(captor.capture());
 
-        assertEquals("Inscricao realizada com sucesso", response.message());
+        assertEquals("Inscrição realizada com sucesso.", response.message());
         assertTrue(captor.getValue().getApproved());
         assertEquals(ParticipationStatus.APPROVED, captor.getValue().getStatus());
         assertNull(captor.getValue().getConfirmedAt());
@@ -399,7 +422,7 @@ class ParticipationServiceTest {
 
         MessageResponse response = participationService.unsubscribe(activityId, participantUserId);
 
-        assertEquals("Inscricao cancelada com sucesso", response.message());
+        assertEquals("Inscrição cancelada com sucesso.", response.message());
         verify(activityParticipantRepository).delete(participant);
     }
 
@@ -442,6 +465,10 @@ class ParticipationServiceTest {
 
     private void stubFindActiveActivity() {
         when(activityRepository.findByIdAndDeletedAtIsNull(activityId)).thenReturn(Optional.of(activity));
+    }
+
+    private void stubFindActivity() {
+        when(activityRepository.findById(activityId)).thenReturn(Optional.of(activity));
     }
 
     private void stubMapParticipantResponse(ActivityParticipant participant) {
