@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 010-add-address-text-fields
+      author: murilo
+      changes:
+        - addColumn:
+            tableName: activity_addresses
+            columns:
+              - column:
+                  name: street
+                  type: varchar(255)
+              - column:
+                  name: number
+                  type: varchar(50)
+              - column:
+                  name: neighborhood
+                  type: varchar(255)
+              - column:
+                  name: city
+                  type: varchar(255)
+              - column:
+                  name: state
+                  type: varchar(100)
