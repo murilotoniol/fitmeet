@@ -87,7 +87,7 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "Preferências atualizadas com sucesso.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = MessageResponse.class),
-                            examples = @ExampleObject(value = "{\"message\":\"Preferencias atualizadas com sucesso\"}"))),
+                            examples = @ExampleObject(value = "{\"message\":\"Preferências atualizadas com sucesso.\"}"))),
             @ApiResponse(responseCode = "400", description = "Campos obrigatórios não informados ou IDs inválidos.",
                     content = @Content(mediaType = "application/json",
                             examples = {
@@ -109,7 +109,7 @@ public class UserController {
             )
             @RequestBody List<UUID> activityTypeIds) {
         userService.definePreferences(userDetails.getUser().getId(), activityTypeIds);
-        return ResponseEntity.ok(new MessageResponse("Preferencias atualizadas com sucesso"));
+        return ResponseEntity.ok(new MessageResponse("Preferências atualizadas com sucesso."));
     }
 
     @PutMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

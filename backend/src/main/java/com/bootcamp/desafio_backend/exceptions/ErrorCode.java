@@ -17,7 +17,7 @@ public enum ErrorCode {
     E12("Não é possível se inscrever em uma atividade concluída.", HttpStatus.FORBIDDEN),
     E13("Não é possível confirmar presença em uma atividade concluída.", HttpStatus.FORBIDDEN),
     E14("Apenas o criador da atividade pode editá-la.", HttpStatus.FORBIDDEN),
-    E15("Apenas o criador da atividade pode exclui-la.", HttpStatus.FORBIDDEN),
+    E15("Apenas o criador da atividade pode excluí-la.", HttpStatus.FORBIDDEN),
     E16("Apenas o criador da atividade pode aprovar ou negar participantes.", HttpStatus.FORBIDDEN),
     E17("Apenas o criador da atividade pode concluí-la.", HttpStatus.FORBIDDEN),
     E18("Não é possível cancelar sua inscrição, pois sua presença já foi confirmada.", HttpStatus.FORBIDDEN),

@@ -30,7 +30,7 @@ public class ImageController {
     @Operation(summary = "Buscar imagem", description = "Endpoint para buscar uma imagem armazenada no S3/LocalStack.")
     @ApiResponse(responseCode = "200", description = "Imagem retornada com sucesso.",
             content = @Content(schema = @Schema(type = "string", format = "binary")))
-    @ApiResponse(responseCode = "404", description = "Imagem nao encontrada.")
+    @ApiResponse(responseCode = "404", description = "Imagem não encontrada.")
     public ResponseEntity<byte[]> getImage(
             @Parameter(description = "Nome do arquivo da imagem")
             @PathVariable String fileName) {

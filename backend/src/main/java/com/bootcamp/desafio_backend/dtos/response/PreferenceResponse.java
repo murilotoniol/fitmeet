@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.UUID;
 
-@Schema(name = "UserPreferencesDTO", description = "Tipo de atividade marcado como interesse do usuario.")
+@Schema(name = "UserPreferencesDTO", description = "Tipo de atividade marcado como interesse do usuário.")
 public record PreferenceResponse(
 
         @Schema(type = "string", format = "uuid")

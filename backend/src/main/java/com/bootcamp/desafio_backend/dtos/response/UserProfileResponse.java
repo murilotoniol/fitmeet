@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.UUID;
 
-@Schema(name = "UserProfileDTO", description = "Dados completos do usuario logado.")
+@Schema(name = "UserProfileDTO", description = "Dados completos do usuário logado.")
 public record UserProfileResponse(
 
         @Schema(type = "string", format = "uuid")
@@ -16,7 +16,7 @@ public record UserProfileResponse(
         String avatar,
         Integer xp,
         Integer level,
-        @Schema(description = "Lista de conquistas do usuario.")
+        @Schema(description = "Lista de conquistas do usuário.")
         List<AchievementResponse> achievements
 ) {
 }

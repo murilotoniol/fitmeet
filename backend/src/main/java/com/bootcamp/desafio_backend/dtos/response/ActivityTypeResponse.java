@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.UUID;
 
-@Schema(name = "ActivityTypeDTO", description = "Tipo de atividade disponivel para filtros e criacao.")
+@Schema(name = "ActivityTypeDTO", description = "Tipo de atividade disponível para filtros e criação.")
 public record ActivityTypeResponse(
 
         @Schema(type = "string", format = "uuid")

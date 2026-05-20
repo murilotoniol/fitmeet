@@ -67,7 +67,7 @@ public class StorageService {
                     RequestBody.fromBytes(bytes)
             );
         } catch (Exception exception) {
-            logger.warn("Nao foi possivel salvar imagem no S3 local. Mantendo copia local em disco.", exception);
+            logger.warn("Não foi possível salvar imagem no S3 local. Mantendo cópia local em disco.", exception);
         }
 
         return buildFileUrl(key);

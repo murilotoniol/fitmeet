@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.UUID;
 
-@Schema(name = "UserDataDTO", description = "Dados resumidos do usuario.")
+@Schema(name = "UserDataDTO", description = "Dados resumidos do usuário.")
 public record UserResponse(
 
         @Schema(type = "string", format = "uuid")

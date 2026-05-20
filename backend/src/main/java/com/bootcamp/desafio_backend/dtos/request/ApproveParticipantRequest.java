@@ -5,10 +5,10 @@ import java.util.UUID;
 
 public record ApproveParticipantRequest(
 
-        @NotNull(message = "ID do participante é obrigatório")
+        @NotNull(message = "ID do participante é obrigatório.")
         UUID participantId,
 
-        @NotNull(message = "Status de aprovação é obrigatório")
+        @NotNull(message = "Status de aprovação é obrigatório.")
         Boolean approved
 ) {
 }

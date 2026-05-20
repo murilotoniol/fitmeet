@@ -21,7 +21,7 @@ public record CreateActivityRequest(
         @Size(max = 255, message = "A descrição deve conter no máximo 255 caracteres.")
         String description,
 
-        @NotNull(message = "O tipo da atividade é obrigatória.")
+        @NotNull(message = "O tipo da atividade é obrigatório.")
         @Schema(type = "string", format = "uuid")
         UUID typeId,
 

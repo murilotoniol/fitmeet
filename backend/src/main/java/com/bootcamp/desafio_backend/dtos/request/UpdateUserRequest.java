@@ -7,7 +7,7 @@ public record UpdateUserRequest(
 
         String name,
 
-        @Email(message = "O formato do e-mail e invalido.")
+        @Email(message = "O formato do e-mail é inválido.")
         String email,
 
         @Size(min = 6, message = "A senha deve ter pelo menos 6 caracteres.")
