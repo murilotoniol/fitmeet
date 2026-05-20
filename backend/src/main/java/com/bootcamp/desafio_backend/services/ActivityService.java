@@ -17,6 +17,7 @@ import com.bootcamp.desafio_backend.models.ActivityAddress;
 import com.bootcamp.desafio_backend.models.ActivityType;
 import com.bootcamp.desafio_backend.models.User;
 import com.bootcamp.desafio_backend.repositories.ActivityAddressRepository;
+import com.bootcamp.desafio_backend.repositories.ActivityParticipantRepository;
 import com.bootcamp.desafio_backend.repositories.ActivityRepository;
 import com.bootcamp.desafio_backend.repositories.ActivityTypeRepository;
 import com.bootcamp.desafio_backend.repositories.UserRepository;
@@ -35,6 +36,7 @@ public class ActivityService {
     private final ActivityRepository activityRepository;
     private final ActivityTypeRepository activityTypeRepository;
     private final ActivityAddressRepository activityAddressRepository;
+    private final ActivityParticipantRepository activityParticipantRepository;
     private final UserRepository userRepository;
     private final StorageService storageService;
     private final AchievementService achievementService;
@@ -44,6 +46,7 @@ public class ActivityService {
     public ActivityService(ActivityRepository activityRepository,
                            ActivityTypeRepository activityTypeRepository,
                            ActivityAddressRepository activityAddressRepository,
+                           ActivityParticipantRepository activityParticipantRepository,
                            UserRepository userRepository,
                            StorageService storageService,
                            AchievementService achievementService,
@@ -53,6 +56,7 @@ public class ActivityService {
         this.activityRepository = activityRepository;
         this.activityTypeRepository = activityTypeRepository;
         this.activityAddressRepository = activityAddressRepository;
+        this.activityParticipantRepository = activityParticipantRepository;
         this.userRepository = userRepository;
         this.storageService = storageService;
         this.achievementService = achievementService;
@@ -95,7 +99,10 @@ public class ActivityService {
     public ActivityResponse getActivity(UUID activityId, UUID userId) {
         Activity activity = activityRepository.findById(activityId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.E21));
-        boolean includeConfirmationCode = activity.getCreator().getId().equals(userId);
+        boolean includeConfirmationCode = activity.getCreator().getId().equals(userId)
+                || activityParticipantRepository.findByActivityIdAndUserId(activityId, userId)
+                .map(participant -> participant.getConfirmedAt() != null)
+                .orElse(false);
 
         return activityQueryService.mapToActivityResponse(activity, includeConfirmationCode, userId);
     }
@@ -210,7 +217,7 @@ public class ActivityService {
             achievementService.grantFirstActivityCompleted(activity.getCreator());
         }
 
-        return new MessageResponse("Atividade concluida com sucesso");
+        return new MessageResponse("Atividade concluída com sucesso.");
     }
 
     public ParticipantResponse approveParticipant(UUID activityId, ApproveParticipantRequest request, UUID userId) {

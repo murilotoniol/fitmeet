@@ -140,6 +140,7 @@ class ActivityServiceTest {
                 activityRepository,
                 activityTypeRepository,
                 activityAddressRepository,
+                activityParticipantRepository,
                 userRepository,
                 storageService,
                 achievementService,
@@ -223,7 +224,7 @@ class ActivityServiceTest {
 
         Activity nonPreferredActivity = new Activity();
         nonPreferredActivity.setId(UUID.randomUUID());
-        nonPreferredActivity.setTitle("Nao preferida");
+        nonPreferredActivity.setTitle("Não preferida");
         nonPreferredActivity.setDescription("Outra atividade");
         nonPreferredActivity.setType(activity.getType());
         nonPreferredActivity.setImage("image-2.png");
@@ -351,7 +352,7 @@ class ActivityServiceTest {
 
         Activity nonPreferredActivity = new Activity();
         nonPreferredActivity.setId(UUID.randomUUID());
-        nonPreferredActivity.setTitle("Nao preferida");
+        nonPreferredActivity.setTitle("Não preferida");
         nonPreferredActivity.setDescription("Outra atividade");
         nonPreferredActivity.setType(activity.getType());
         nonPreferredActivity.setImage("image-2.png");
@@ -448,7 +449,7 @@ class ActivityServiceTest {
 
     @Test
     void getParticipants_AsCreator_ReturnsParticipants() {
-        stubFindActiveActivity();
+        when(activityRepository.findById(activityId)).thenReturn(Optional.of(activity));
         when(activityParticipantRepository.findByActivityId(activityId)).thenReturn(List.of(participant));
 
         List<ParticipantResponse> responses = activityService.getParticipants(activityId, creatorId);
@@ -470,7 +471,7 @@ class ActivityServiceTest {
         ArgumentCaptor<ActivityParticipant> captor = ArgumentCaptor.forClass(ActivityParticipant.class);
         verify(activityParticipantRepository).save(captor.capture());
 
-        assertEquals("Inscricao realizada com sucesso", response.message());
+        assertEquals("Inscrição realizada com sucesso.", response.message());
         assertTrue(captor.getValue().getApproved());
         assertEquals(ParticipationStatus.APPROVED, captor.getValue().getStatus());
         assertNull(captor.getValue().getConfirmedAt());
@@ -533,7 +534,7 @@ class ActivityServiceTest {
         stubFindActiveActivity();
         MessageResponse response = activityService.conclude(activityId, creatorId);
 
-        assertEquals("Atividade concluida com sucesso", response.message());
+        assertEquals("Atividade concluída com sucesso.", response.message());
         assertNotNull(activity.getCompletedAt());
         verify(activityRepository).save(activity);
     }
@@ -545,7 +546,7 @@ class ActivityServiceTest {
 
         CreateActivityRequest request = new CreateActivityRequest(
                 "Corrida",
-                "Descricao",
+                "Descrição",
                 type.getId(),
                 new MockMultipartFile("image", "image.png", "image/png", "img".getBytes()),
                 LocalDateTime.now().plusDays(1),
@@ -727,7 +728,7 @@ class ActivityServiceTest {
 
         MessageResponse response = activityService.unsubscribe(activityId, participantUserId);
 
-        assertEquals("Inscricao cancelada com sucesso", response.message());
+        assertEquals("Inscrição cancelada com sucesso.", response.message());
         verify(activityParticipantRepository).delete(participant);
     }
 

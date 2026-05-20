@@ -22,6 +22,8 @@ public record ActivityResponse(
         LocalDateTime createdAt,
         @Schema(type = "string", format = "date-time")
         LocalDateTime completedAt,
+        @Schema(type = "string", format = "date-time")
+        LocalDateTime deletedAt,
         boolean isPrivate,
         ActivityCreatorResponse creator,
         ParticipationStatus userSubscriptionStatus
