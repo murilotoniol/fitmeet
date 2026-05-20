@@ -72,9 +72,10 @@ class ActivityControllerTest {
                 "corrida.png",
                 "ABC12345",
                 3,
-                new ActivityAddressResponse(-23.5, -46.6),
+                new ActivityAddressResponse(-23.5, -46.6, "Rua A", "10", "Centro", "Sao Paulo", "SP"),
                 LocalDateTime.now().plusDays(1),
                 LocalDateTime.now().minusDays(1),
+                null,
                 null,
                 false,
                 new ActivityCreatorResponse(userId, "Test User", null),
@@ -165,12 +166,12 @@ class ActivityControllerTest {
 
     @Test
     void subscribe_ReturnsCreated() {
-        when(activityService.subscribe(activityId, userId)).thenReturn(new MessageResponse("Inscricao realizada com sucesso"));
+        when(activityService.subscribe(activityId, userId)).thenReturn(new MessageResponse("Inscrição realizada com sucesso."));
 
         ResponseEntity<MessageResponse> response = activityController.subscribe(activityId, userDetails);
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        assertEquals("Inscricao realizada com sucesso", response.getBody().message());
+        assertEquals("Inscrição realizada com sucesso.", response.getBody().message());
         verify(activityService).subscribe(activityId, userId);
     }
 
@@ -196,12 +197,12 @@ class ActivityControllerTest {
 
     @Test
     void concludeActivity_ReturnsOk() {
-        when(activityService.conclude(activityId, userId)).thenReturn(new MessageResponse("Atividade concluida com sucesso"));
+        when(activityService.conclude(activityId, userId)).thenReturn(new MessageResponse("Atividade concluída com sucesso."));
 
         ResponseEntity<MessageResponse> response = activityController.concludeActivity(activityId, userDetails);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Atividade concluida com sucesso", response.getBody().message());
+        assertEquals("Atividade concluída com sucesso.", response.getBody().message());
         verify(activityService).conclude(activityId, userId);
     }
 
@@ -238,12 +239,12 @@ class ActivityControllerTest {
 
     @Test
     void unsubscribe_ReturnsOk() {
-        when(activityService.unsubscribe(activityId, userId)).thenReturn(new MessageResponse("Inscricao cancelada com sucesso"));
+        when(activityService.unsubscribe(activityId, userId)).thenReturn(new MessageResponse("Inscrição cancelada com sucesso."));
 
         ResponseEntity<MessageResponse> response = activityController.unsubscribe(activityId, userDetails);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Inscricao cancelada com sucesso", response.getBody().message());
+        assertEquals("Inscrição cancelada com sucesso.", response.getBody().message());
         verify(activityService).unsubscribe(activityId, userId);
     }
 

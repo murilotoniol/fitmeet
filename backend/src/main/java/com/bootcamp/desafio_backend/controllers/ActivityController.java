@@ -214,6 +214,29 @@ public class ActivityController {
         return ResponseEntity.ok(activityService.getActivityParticipantAll(userDetails.getUser().getId()));
     }
 
+    @GetMapping("/{id}")
+    @Operation(summary = "Buscar detalhes de uma atividade", description = "Endpoint para buscar uma atividade específica.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Atividade retornada com sucesso.",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(implementation = ActivityResponse.class))),
+            @ApiResponse(responseCode = "401", description = "Autenticação necessária.",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = "{\"error\":\"Autenticação necessária.\"}"))),
+            @ApiResponse(responseCode = "404", description = "Atividade não encontrada.",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = "{\"error\":\"Atividade não encontrada.\"}"))),
+            @ApiResponse(responseCode = "500", description = "Erro inesperado.",
+                    content = @Content(mediaType = "application/json",
+                            examples = @ExampleObject(value = "{\"error\":\"Erro inesperado.\"}")))
+    })
+    public ResponseEntity<ActivityResponse> getActivity(
+            @Parameter(schema = @Schema(type = "string", format = "uuid"))
+            @PathVariable UUID id,
+            @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.ok(activityService.getActivity(id, userDetails.getUser().getId()));
+    }
+
     @GetMapping("/{id}/participants")
     @Operation(summary = "Buscar participantes de uma atividade",
             description = "Endpoint para buscar os participantes de uma atividade específica.")
@@ -271,7 +294,7 @@ public class ActivityController {
             @ApiResponse(responseCode = "201", description = "Inscrição realizada com sucesso.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = MessageResponse.class),
-                            examples = @ExampleObject(value = "{\"message\":\"Inscricao realizada com sucesso\"}"))),
+                            examples = @ExampleObject(value = "{\"message\":\"Inscrição realizada com sucesso.\"}"))),
             @ApiResponse(responseCode = "401", description = "Autenticação necessária.",
                     content = @Content(mediaType = "application/json",
                             examples = @ExampleObject(value = "{\"error\":\"Autenticação necessária.\"}"))),
@@ -329,16 +352,16 @@ public class ActivityController {
     @PutMapping("/{id}/conclude")
     @Operation(summary = "Concluir uma atividade", description = "Endpoint para concluir uma atividade.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Atividade concluida com sucesso.",
+            @ApiResponse(responseCode = "200", description = "Atividade concluída com sucesso.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = MessageResponse.class),
-                            examples = @ExampleObject(value = "{\"message\":\"Atividade concluida com sucesso\"}"))),
+                            examples = @ExampleObject(value = "{\"message\":\"Atividade concluída com sucesso.\"}"))),
             @ApiResponse(responseCode = "401", description = "Autenticação necessária.",
                     content = @Content(mediaType = "application/json",
                             examples = @ExampleObject(value = "{\"error\":\"Autenticação necessária.\"}"))),
             @ApiResponse(responseCode = "403", description = "Apenas o criador pode concluir a atividade.",
                     content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(value = "{\"error\":\"Apenas o criador de uma atividade pode conclui-la.\"}"))),
+                            examples = @ExampleObject(value = "{\"error\":\"Apenas o criador de uma atividade pode concluí-la.\"}"))),
             @ApiResponse(responseCode = "404", description = "Atividade não encontrada.",
                     content = @Content(mediaType = "application/json",
                             examples = @ExampleObject(value = "{\"error\":\"Atividade não encontrada.\"}"))),
@@ -357,7 +380,7 @@ public class ActivityController {
     @Operation(summary = "Aprovar ou negar inscrição de participante em atividade privada",
             description = "Endpoint para aprovar ou negar inscrição de participante em atividade privada.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Solicitacao processada com sucesso.",
+            @ApiResponse(responseCode = "200", description = "Solicitação processada com sucesso.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = ParticipantResponse.class))),
             @ApiResponse(responseCode = "400", description = "Campos obrigatórios não informados.",
@@ -396,7 +419,7 @@ public class ActivityController {
                     content = @Content(mediaType = "application/json",
                             examples = {
                                     @ExampleObject(name = "Campos obrigatórios", value = "{\"error\":\"Informe os campos obrigatórios corretamente.\"}"),
-                                    @ExampleObject(name = "Codigo incorreto", value = "{\"error\":\"Código de confirmação incorreto.\"}")
+                                    @ExampleObject(name = "Código incorreto", value = "{\"error\":\"Código de confirmação incorreto.\"}")
                             })),
             @ApiResponse(responseCode = "401", description = "Autenticação necessária.",
                     content = @Content(mediaType = "application/json",
@@ -405,7 +428,7 @@ public class ActivityController {
                     content = @Content(mediaType = "application/json",
                             examples = {
                                     @ExampleObject(name = "Participante não aprovado", value = "{\"error\":\"Apenas participantes aprovados na atividade podem fazer check-in.\"}"),
-                                    @ExampleObject(name = "Atividade concluida", value = "{\"error\":\"Não é possível confirmar sua presença em uma atividade concluída.\"}")
+                                    @ExampleObject(name = "Atividade concluída", value = "{\"error\":\"Não é possível confirmar sua presença em uma atividade concluída.\"}")
                             })),
             @ApiResponse(responseCode = "404", description = "Atividade não encontrada.",
                     content = @Content(mediaType = "application/json",
@@ -432,7 +455,7 @@ public class ActivityController {
             @ApiResponse(responseCode = "200", description = "Inscrição cancelada com sucesso.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = MessageResponse.class),
-                            examples = @ExampleObject(value = "{\"message\":\"Inscricao cancelada com sucesso\"}"))),
+                            examples = @ExampleObject(value = "{\"message\":\"Inscrição cancelada com sucesso.\"}"))),
             @ApiResponse(responseCode = "401", description = "Autenticação necessária.",
                     content = @Content(mediaType = "application/json",
                             examples = @ExampleObject(value = "{\"error\":\"Autenticação necessária.\"}"))),
@@ -456,7 +479,7 @@ public class ActivityController {
     @DeleteMapping("/{id}/delete")
     @Operation(summary = "Excluir uma atividade existente", description = "Endpoint para excluir uma atividade existente.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Atividade excluida com sucesso.",
+            @ApiResponse(responseCode = "200", description = "Atividade excluída com sucesso.",
                     content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                             schema = @Schema(implementation = MessageResponse.class),
                             examples = @ExampleObject(value = "{\"message\":\"Atividade desativada com sucesso\"}"))),
@@ -465,7 +488,7 @@ public class ActivityController {
                             examples = @ExampleObject(value = "{\"error\":\"Autenticação necessária.\"}"))),
             @ApiResponse(responseCode = "403", description = "Apenas o criador pode excluir a atividade.",
                     content = @Content(mediaType = "application/json",
-                            examples = @ExampleObject(value = "{\"error\":\"Apenas o criador de uma atividade pode exclui-la.\"}"))),
+                            examples = @ExampleObject(value = "{\"error\":\"Apenas o criador de uma atividade pode excluí-la.\"}"))),
             @ApiResponse(responseCode = "404", description = "Atividade não encontrada.",
                     content = @Content(mediaType = "application/json",
                             examples = @ExampleObject(value = "{\"error\":\"Atividade não encontrada.\"}"))),
