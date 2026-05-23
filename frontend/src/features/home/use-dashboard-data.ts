@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getActivityTypes, getAllActivities } from "@/api/activities";
 import { getPreferences } from "@/api/user";
 import type { Activity, ActivityType, Preference } from "@/types";
+import { filterVisibleActivities } from "@/utils/activity-filters";
 
 type DashboardSection = {
   typeId: string;
@@ -63,7 +64,7 @@ function useDashboardData(token: string | null): UseDashboardDataResult {
         }
 
         setActivityTypes(loadedTypes);
-        setActivities(loadedActivities.filter((activity) => !activity.completedAt));
+        setActivities(filterVisibleActivities(loadedActivities));
         setPreferences(loadedPreferences);
       } catch (fetchError) {
         if (!active) {
