@@ -5,7 +5,7 @@ function markPreferencesSkipped() {
     return;
   }
 
-  window.localStorage.setItem(PREFERENCES_SKIPPED_STORAGE_KEY, "true");
+  window.sessionStorage.setItem(PREFERENCES_SKIPPED_STORAGE_KEY, "true");
 }
 
 function clearPreferencesSkipped() {
@@ -13,6 +13,7 @@ function clearPreferencesSkipped() {
     return;
   }
 
+  window.sessionStorage.removeItem(PREFERENCES_SKIPPED_STORAGE_KEY);
   window.localStorage.removeItem(PREFERENCES_SKIPPED_STORAGE_KEY);
 }
 
@@ -21,7 +22,7 @@ function hasSkippedPreferences() {
     return false;
   }
 
-  return window.localStorage.getItem(PREFERENCES_SKIPPED_STORAGE_KEY) === "true";
+  return window.sessionStorage.getItem(PREFERENCES_SKIPPED_STORAGE_KEY) === "true";
 }
 
 export {
