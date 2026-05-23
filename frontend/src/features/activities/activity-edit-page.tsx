@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router";
 import { getActivity } from "@/api/activities";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { DashboardSkeleton } from "@/components/ui/dashboard-skeleton";
 import { Modal } from "@/components/ui/modal";
 import { useDashboardData } from "@/features/home/use-dashboard-data";
 import { useSession } from "@/hooks/use-session";
@@ -16,14 +17,16 @@ import { ActivityEditModal } from "./activity-edit-modal";
 function ActivityEditPage() {
   const navigate = useNavigate();
   const { activityId } = useParams();
-  const { token } = useSession();
+  const { token, user } = useSession();
   const dashboardData = useDashboardData(token);
   const [activity, setActivity] = useState<Activity | null>(null);
   const [loadingActivity, setLoadingActivity] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const backgroundIsLoading = dashboardData.loading && !dashboardData.error;
+  const editModalIsLoading = loadingActivity || backgroundIsLoading;
 
   useEffect(() => {
-    if (!token || !activityId) {
+    if (!token || !activityId || !user) {
       return;
     }
 
@@ -35,6 +38,16 @@ function ActivityEditPage() {
 
       try {
         const loadedActivity = await getActivity(token, activityId);
+
+        if (!active) {
+          return;
+        }
+
+        if (loadedActivity.creator.id !== user.id) {
+          setActivity(null);
+          setError("Apenas o organizador pode editar esta atividade.");
+          return;
+        }
 
         if (active) {
           setActivity(loadedActivity);
@@ -59,12 +72,14 @@ function ActivityEditPage() {
     return () => {
       active = false;
     };
-  }, [activityId, token]);
+  }, [activityId, token, user]);
 
   return (
     <AppShell>
+      {dashboardData.error ? <Alert variant="error" description={dashboardData.error} /> : null}
+
       {dashboardData.loading ? (
-        <div className="py-16 text-body text-[var(--color-text)]">Carregando atividades...</div>
+        <DashboardSkeleton />
       ) : (
         <DashboardSections
           recommendedActivities={dashboardData.recommendedActivities}
@@ -73,7 +88,7 @@ function ActivityEditPage() {
         />
       )}
 
-      {loadingActivity ? (
+      {editModalIsLoading ? (
         <Modal
           open
           className="w-full max-w-[min(420px,calc(100vw-1.5rem))] rounded-[8px] p-8"
@@ -83,7 +98,7 @@ function ActivityEditPage() {
         </Modal>
       ) : null}
 
-      {!loadingActivity && error ? (
+      {!editModalIsLoading && error ? (
         <Modal
           open
           className="w-full max-w-[min(420px,calc(100vw-1.5rem))] rounded-[8px] p-8"
@@ -96,13 +111,16 @@ function ActivityEditPage() {
         </Modal>
       ) : null}
 
-      {!loadingActivity && activity && token ? (
+      {!editModalIsLoading && activity && token ? (
         <ActivityEditModal
           activity={activity}
           token={token}
           onClose={() => navigate("/home")}
           onSaved={(updatedActivity) => {
             navigate(`/atividades/detalhes/${updatedActivity.id}`, { replace: true });
+          }}
+          onCanceled={() => {
+            navigate("/home", { replace: true });
           }}
         />
       ) : null}
