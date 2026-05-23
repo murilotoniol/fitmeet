@@ -5,7 +5,6 @@ import babel from "@rolldown/plugin-babel";
 import tailwindcss from "@tailwindcss/vite";
 import path from "node:path";
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [
     react(),
