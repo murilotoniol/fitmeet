@@ -1,6 +1,15 @@
 import type { ErrorResponse } from "@/types";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL ?? "/api";
+const API_URL = import.meta.env.VITE_API_URL?.trim() ?? "";
+const API_BASE_URL = API_URL.replace(/\/$/, "");
+
+if (import.meta.env.PROD && !API_BASE_URL) {
+  throw new Error("Defina VITE_API_URL para conectar o frontend ao backend em producao.");
+}
+
+function buildApiUrl(path: string) {
+  return API_BASE_URL ? `${API_BASE_URL}${path}` : `/api${path}`;
+}
 
 class ApiError extends Error {
   status: number;
@@ -35,7 +44,7 @@ async function request<T>(path: string, options: RequestOptions = {}) {
     body = JSON.stringify(options.body);
   }
 
-  const response = await fetch(`${API_BASE_URL}${path}`, {
+  const response = await fetch(buildApiUrl(path), {
     ...options,
     headers,
     body,
