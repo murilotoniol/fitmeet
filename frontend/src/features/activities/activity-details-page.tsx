@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { Ban, Check, Flag, UserCheck } from "lucide-react";
+import { Ban, CalendarX, Check, Flag, Pencil, UserCheck } from "lucide-react";
 
 import {
   approveParticipant,
@@ -14,12 +14,15 @@ import {
 } from "@/api/activities";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { DashboardSkeleton } from "@/components/ui/dashboard-skeleton";
 import { ConfirmationDialog } from "@/components/ui/confirmation-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { MapPreview } from "@/components/ui/map-preview";
 import { Modal } from "@/components/ui/modal";
 import { ParticipantList } from "@/components/ui/participant-list";
+import { DashboardSections } from "@/features/home/dashboard-sections";
+import { useDashboardData } from "@/features/home/use-dashboard-data";
 import { useSession } from "@/hooks/use-session";
 import { AppShell } from "@/layouts/app-shell";
 import type { Activity, Participant, ParticipationStatus } from "@/types";
@@ -43,6 +46,7 @@ function ActivityDetailsPage() {
   const navigate = useNavigate();
   const { activityId } = useParams();
   const { token, user } = useSession();
+  const dashboardData = useDashboardData(token);
   const [loading, setLoading] = useState(true);
   const [activity, setActivity] = useState<Activity | null>(null);
   const [participants, setParticipants] = useState<Participant[]>([]);
@@ -70,15 +74,13 @@ function ActivityDetailsPage() {
           return;
         }
 
-        const shouldLoadParticipants = currentActivity.creator.id === user.id;
-
         let loadedParticipants: Participant[] = [];
 
-        if (shouldLoadParticipants) {
+        try {
           loadedParticipants = await getParticipants(token, activityId);
-
-          if (!active) {
-            return;
+        } catch (participantsError) {
+          if (currentActivity.creator.id === user.id) {
+            throw participantsError;
           }
         }
 
@@ -122,8 +124,12 @@ function ActivityDetailsPage() {
 
     let loadedParticipants: Participant[] = [];
 
-    if (currentActivity.creator.id === user.id) {
+    try {
       loadedParticipants = await getParticipants(token, activityId);
+    } catch (participantsError) {
+      if (currentActivity.creator.id === user.id) {
+        throw participantsError;
+      }
     }
 
     setActivity(currentActivity);
@@ -155,16 +161,21 @@ function ActivityDetailsPage() {
       }
     : activity.deletedAt
       ? {
-          label: undefined,
+          label: "Atividade cancelada",
           disabled: true,
-          variant: "outline" as const,
+          variant: "danger" as const,
+          icon: <CalendarX size={28} strokeWidth={1.75} aria-hidden />,
+          className:
+            "h-12 w-[224px] max-w-full gap-1.5 rounded-[4px] bg-[#E7000B] px-3 text-white hover:bg-[#E7000B]",
           onClick: undefined,
         }
     : activity.completedAt
       ? {
-          label: undefined,
+          label: "Atividade encerrada",
           disabled: true,
           variant: "outline" as const,
+          className:
+            "mt-4 h-12 w-[224px] max-w-full border-[#404040] bg-white px-3 text-[#404040] hover:border-[#404040] hover:bg-white hover:text-[#404040]",
           onClick: undefined,
         }
       : isCreator
@@ -181,7 +192,7 @@ function ActivityDetailsPage() {
                 disabled: true,
                 variant: "outline" as const,
                 className:
-                  "border-[#404040] text-[#404040] hover:border-[#404040] hover:text-[#404040]",
+                  "mt-4 border-[#404040] text-[#404040] hover:border-[#404040] hover:text-[#404040]",
                 onClick: undefined,
               }
             : {
@@ -229,17 +240,19 @@ function ActivityDetailsPage() {
                     };
 
   const participantItems = activity
-    ? isCreator
+    ? isCreator || participants.length > 0
       ? participants.map((participant) => ({
           id: participant.id,
           name: participant.user.name,
           role: participant.user.id === activity.creator.id ? "Organizador" : undefined,
           image: participant.user.avatar ?? "",
           showApproveActions:
+            isCreator &&
             !actionLoading &&
             activity.isPrivate &&
             !activity.completedAt &&
             !activity.deletedAt &&
+            !isCheckInWindowOpen(activity) &&
             participant.user.id !== activity.creator.id &&
             participant.approved !== true,
           onApprove: () =>
@@ -298,10 +311,23 @@ function ActivityDetailsPage() {
 
   return (
     <AppShell>
+      {dashboardData.error ? <Alert variant="error" description={dashboardData.error} /> : null}
+
+      {dashboardData.loading ? (
+        <DashboardSkeleton />
+      ) : (
+        <DashboardSections
+          recommendedActivities={dashboardData.recommendedActivities}
+          activityTypes={dashboardData.activityTypes}
+          sections={dashboardData.sections}
+        />
+      )}
+
       <Modal
         open
         onClose={handleClose}
         className="max-h-[min(92dvh,960px)] w-full min-w-0 max-w-[min(834px,calc(100vw-1.5rem))] overflow-x-hidden overflow-y-auto rounded-[8px] px-4 py-6 shadow-[0_24px_80px_rgb(23_23_23_/_0.24)] sm:px-8 sm:py-10 lg:px-12 lg:py-12"
+        overlayClassName="backdrop-blur-[8px] supports-[backdrop-filter]:bg-[rgb(23_23_23_/_0.28)]"
       >
         {error ? <Alert variant="error" description={error} className="mb-6" /> : null}
 
@@ -315,7 +341,7 @@ function ActivityDetailsPage() {
           />
         ) : activity ? (
           <div className="grid min-w-0 gap-8 lg:grid-cols-[384px_320px] lg:gap-6">
-            <div className="min-w-0">
+            <div className="min-w-0 lg:flex">
             <ActivityDetailsPanel
               title={activity.title.toUpperCase()}
               image={activity.image}
@@ -330,47 +356,30 @@ function ActivityDetailsPage() {
               actionClassName={"className" in actionConfig ? actionConfig.className : undefined}
               onActionClick={actionConfig.onClick}
             >
-              {activity.deletedAt ? (
-                <Alert variant="error" description="Atividade cancelada." />
-              ) : null}
-
-              {activity.completedAt ? (
-                <Alert variant="success" description="Atividade encerrada." />
-              ) : null}
-
               {isCreator && !activity.completedAt && !activity.deletedAt ? (
-                <div className="space-y-5">
-                  {isCheckInWindowOpen(activity) ? (
-                    <div className="flex">
-                      <Button
-                        onClick={() => runAction(() => concludeActivity(token!, activity.id))}
-                        disabled={actionLoading}
-                        className="h-12 w-full max-w-[224px] gap-1.5 rounded-[4px] bg-[var(--color-primary-500)] px-3 text-white hover:bg-[var(--color-primary-600)]"
-                      >
-                        <Flag size={28} strokeWidth={1.75} aria-hidden />
-                        {actionLoading ? "Encerrando..." : "Encerrar atividade"}
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="grid min-w-0 gap-3 sm:grid-cols-2">
+                <div className="pt-2 lg:mt-auto">
+                  <div className="min-w-0">
+                    {!isCheckInWindowOpen(activity) ? (
                       <Button
                         variant="outline"
                         onClick={() => navigate(`/atividades/editar/${activity.id}`)}
                         disabled={actionLoading}
-                        className="border-[#A1A1A1] text-[#A1A1A1] hover:border-[var(--color-text)] hover:text-[var(--color-text)]"
+                        className="h-12 w-full rounded-[4px] border-[#171717] text-[#171717] hover:border-[#171717] hover:text-[#171717] sm:w-[224px]"
                       >
+                        <Pencil size={20} strokeWidth={1.75} aria-hidden />
                         Editar
                       </Button>
-                      <Button
-                        variant="danger"
-                        onClick={() => setCancelDialogOpen(true)}
-                        disabled={actionLoading}
-                        className="text-white"
-                      >
-                        Cancelar
-                      </Button>
-                    </div>
-                  )}
+                    ) : (
+                    <Button
+                      onClick={() => runAction(() => concludeActivity(token!, activity.id))}
+                      disabled={actionLoading}
+                      className="h-12 w-full gap-1.5 rounded-[4px] bg-[var(--color-primary-500)] px-3 text-white hover:bg-[var(--color-primary-600)] sm:w-[224px]"
+                    >
+                      <Flag size={28} strokeWidth={1.75} aria-hidden />
+                      {actionLoading ? "Encerrando..." : "Encerrar atividade"}
+                    </Button>
+                    )}
+                  </div>
                 </div>
               ) : null}
 
@@ -387,7 +396,8 @@ function ActivityDetailsPage() {
                       placeholder="Código de confirmação"
                       value={displayedCheckInCode}
                       onChange={(event) => setCheckInCode(event.target.value)}
-                      readOnly={status === "CHECKED_IN"}
+                      readOnly={status === "CHECKED_IN" || actionLoading}
+                      disabled={status !== "CHECKED_IN" && actionLoading}
                     />
                     </div>
                     {status === "CHECKED_IN" ? (

@@ -37,18 +37,22 @@ function ActivityDetailsPanel({
   children,
 }: ActivityDetailsPanelProps) {
   return (
-    <div className="min-w-0 space-y-8">
-      <ImageWithFallback
-        src={image}
-        fallbackSrc={ACTIVITY_PLACEHOLDER}
-        alt={title}
-        className="h-[168px] w-full rounded-[4px] object-cover"
-      />
+    <div className="flex h-full min-w-0 flex-col gap-8">
+      <div className="space-y-8">
+        <ImageWithFallback
+          src={image}
+          fallbackSrc={ACTIVITY_PLACEHOLDER}
+          alt={title}
+          className="h-[168px] w-full rounded-[4px] object-cover"
+        />
 
-      <div className="space-y-5">
-        <h2 className="break-words text-title text-[var(--color-title)]">{title}</h2>
-        <p className="break-words text-body text-[var(--color-text)]">{description}</p>
+        <div className="space-y-5">
+          <h2 className="break-words text-title text-[var(--color-title)]">{title}</h2>
+          <p className="break-words text-body text-[var(--color-text)]">{description}</p>
+        </div>
+      </div>
 
+      <div className="mt-auto space-y-8">
         <div className="flex flex-col gap-4 text-body text-[var(--color-text)]">
           <div className="flex items-center gap-3">
             <CalendarDays size={22} className="text-[var(--color-primary-500)]" />
@@ -67,24 +71,24 @@ function ActivityDetailsPanel({
             </div>
           ) : null}
         </div>
+
+        {children}
+
+        {actionLabel ? (
+          <Button
+            className={`h-12 w-full max-w-full min-w-0 gap-1.5 rounded-[4px] px-3 sm:max-w-[224px] ${
+              actionVariant === "primary" || actionVariant === "danger" ? "text-white" : ""
+            } ${!onActionClick ? "pointer-events-none" : ""} ${actionClassName ?? ""}`}
+            variant={actionVariant}
+            disabled={Boolean(onActionClick) && actionDisabled}
+            aria-disabled={actionDisabled || !onActionClick}
+            onClick={onActionClick}
+          >
+            {actionIcon}
+            {actionLabel}
+          </Button>
+        ) : null}
       </div>
-
-      {children}
-
-      {actionLabel ? (
-        <Button
-          className={`h-12 w-full max-w-full min-w-0 gap-1.5 rounded-[4px] px-3 sm:max-w-[224px] ${
-            actionVariant === "primary" || actionVariant === "danger" ? "text-white" : ""
-          } ${!onActionClick ? "pointer-events-none" : ""} ${actionClassName ?? ""}`}
-          variant={actionVariant}
-          disabled={Boolean(onActionClick) && actionDisabled}
-          aria-disabled={actionDisabled || !onActionClick}
-          onClick={onActionClick}
-        >
-          {actionIcon}
-          {actionLabel}
-        </Button>
-      ) : null}
     </div>
   );
 }
