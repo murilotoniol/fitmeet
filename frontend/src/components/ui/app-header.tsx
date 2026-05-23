@@ -83,7 +83,7 @@ function AppHeader({
         <Link
           to={homeTo}
           className={cn(
-            "inline-flex h-10 w-[119px] min-w-0 shrink-0 items-center rounded-lg no-underline outline-none transition-opacity hover:opacity-90",
+            "inline-flex h-10 min-w-[119px] shrink-0 items-center rounded-lg no-underline outline-none transition-opacity hover:opacity-90",
             "focus-visible:ring-2 focus-visible:ring-[var(--color-primary-500)] focus-visible:ring-offset-2",
           )}
           aria-label="Ir para a pagina inicial"

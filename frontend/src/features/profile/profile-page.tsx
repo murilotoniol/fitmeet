@@ -3,6 +3,8 @@ import { Pencil } from "lucide-react";
 import { useNavigate } from "react-router";
 
 import { getCreatorActivities, getParticipantActivities } from "@/api/activities";
+import xpImage from "@/assets/trofeu.png";
+import { AchievementMedal } from "@/components/ui/achievement-medal";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -11,6 +13,7 @@ import { PageSection } from "@/components/ui/page-section";
 import { useSession } from "@/hooks/use-session";
 import { AppShell } from "@/layouts/app-shell";
 import type { Activity, ActivityPage } from "@/types";
+import { filterVisibleActivities } from "@/utils/activity-filters";
 import { formatDateTime } from "@/utils/formatters";
 import { AVATAR_PLACEHOLDER } from "@/utils/image-placeholders";
 
@@ -24,10 +27,6 @@ const PROFILE_LOAD_MORE_PAGES = PROFILE_LOAD_MORE_STEP / PROFILE_PAGE_SIZE;
 const BASE_XP_TO_LEVEL_UP = 100;
 const LEVEL_XP_MULTIPLIER = 1.08;
 const ACHIEVEMENTS_PER_PAGE = 3;
-const XP_IMAGE_URL =
-  "https://d11unjture0ske.cloudfront.net/transparent_background_image.67d718f3-658b-4815-a112-053541fad6ae.b4ca3e11-33d1-461e-8ca2-91049d836a02.png";
-const ACHIEVEMENT_IMAGE_URL =
-  "https://img.magnific.com/free-vector/award-ribbon_24908-54794.jpg?semt=ais_hybrid&w=740&q=80";
 
 type ActivityPageFetcher = (page: number) => Promise<ActivityPage>;
 
@@ -46,7 +45,7 @@ async function loadProfilePages(
   }
 
   return {
-    activities: loadedActivities,
+    activities: filterVisibleActivities(loadedActivities),
     nextPage: currentPage,
   };
 }
@@ -267,7 +266,7 @@ function ProfilePage() {
               src={user.avatar ?? undefined}
               fallbackSrc={AVATAR_PLACEHOLDER}
               alt={user.name ?? "Perfil"}
-              className="h-40 w-40 rounded-full border-4 border-[var(--color-primary-500)] object-cover"
+              className="h-40 w-40 rounded-full object-cover"
             />
 
             <div className="space-y-2">
@@ -287,7 +286,7 @@ function ProfilePage() {
                 </div>
 
                 <img
-                  src={XP_IMAGE_URL}
+                  src={xpImage}
                   alt=""
                   className="h-24 w-36 object-contain sm:h-28 sm:w-44"
                   loading="lazy"
@@ -329,14 +328,7 @@ function ProfilePage() {
                             key={achievement.id}
                             className="flex h-[120px] w-[95px] min-w-0 flex-col items-center gap-2 text-center"
                           >
-                            <div className="h-20 w-20 overflow-hidden rounded-[55px] bg-[#f3f3f3] px-5 py-2">
-                              <img
-                                src={ACHIEVEMENT_IMAGE_URL}
-                                alt=""
-                                className="h-full w-full scale-110 object-cover"
-                                loading="lazy"
-                              />
-                            </div>
+                            <AchievementMedal />
                             <p className="h-8 max-w-[95px] overflow-hidden break-words text-center text-xs leading-4 text-[var(--color-title)]">
                               {achievement.name}
                             </p>
@@ -367,14 +359,7 @@ function ProfilePage() {
                 </>
               ) : (
                 <div className="flex h-[120px] w-full flex-col items-center justify-center text-center lg:w-[309px]">
-                  <div className="h-20 w-20 overflow-hidden rounded-[55px] bg-[#f3f3f3] px-5 py-2">
-                    <img
-                      src={ACHIEVEMENT_IMAGE_URL}
-                      alt=""
-                      className="h-full w-full scale-110 object-cover"
-                      loading="lazy"
-                    />
-                  </div>
+                  <AchievementMedal />
                   <p className="mt-2 text-xs leading-4 text-[var(--color-title)]">Nenhuma conquista ainda</p>
                 </div>
               )}

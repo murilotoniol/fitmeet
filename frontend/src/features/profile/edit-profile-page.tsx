@@ -20,7 +20,7 @@ import { ProfileAvatarEditor } from "@/components/ui/profile-avatar-editor";
 import { useSession } from "@/hooks/use-session";
 import { AppShell } from "@/layouts/app-shell";
 import type { ActivityType } from "@/types";
-import { AVATAR_PLACEHOLDER } from "@/utils/image-placeholders";
+import { ACTIVITY_TYPE_IMAGE, AVATAR_PLACEHOLDER } from "@/utils/image-placeholders";
 import { formatCpf, isValidEmail, isValidPassword } from "@/utils/validators";
 
 type EditProfilePageProps = {
@@ -219,6 +219,7 @@ function EditProfilePage({ showDeactivateDialog = false }: EditProfilePageProps)
               value={formatCpf(user?.cpf ?? "")}
               readOnly
               disabled
+              className="disabled:bg-[#F7F7F7] disabled:text-[var(--color-title)]"
             />
 
             <Input
@@ -262,7 +263,7 @@ function EditProfilePage({ showDeactivateDialog = false }: EditProfilePageProps)
                     <CategoryCard
                       key={type.id}
                       title={type.name}
-                      image={type.image}
+                      image={ACTIVITY_TYPE_IMAGE}
                       selected={selectedTypeIds.includes(type.id)}
                       onClick={() => togglePreference(type.id)}
                     />
@@ -315,6 +316,15 @@ function EditProfilePage({ showDeactivateDialog = false }: EditProfilePageProps)
         confirmLabel="Desativar"
         destructive
         loading={deactivating}
+        hideCloseButton
+        className="w-full max-w-[min(572px,calc(100vw-1.5rem))] rounded-[8px] p-6 sm:h-[296px] sm:w-[572px] sm:p-[48px]"
+        contentClassName="flex h-full min-w-0 flex-col sm:gap-[32px] space-y-0"
+        textBoxClassName="flex min-w-0 flex-col sm:gap-[12px] space-y-0 sm:h-[120px] sm:w-[476px] mb-0 sm:mb-0"
+        titleClassName="text-title leading-[var(--text-title-line)] sm:h-[36px] sm:w-[476px] mb-0 sm:mb-0"
+        descriptionClassName="sm:h-[72px] sm:w-[476px]"
+        actionsClassName="gap-[10px] sm:justify-end"
+        cancelButtonClassName="h-12 gap-[6px] rounded-[4px] border border-[1px] px-[24px] sm:w-[119px]"
+        confirmButtonClassName="h-12 gap-[6px] rounded-[4px] border border-[1px] px-[24px] sm:w-[119px]"
         onCancel={() => navigate("/perfil/editar")}
         onConfirm={handleDeactivate}
       />
