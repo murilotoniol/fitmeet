@@ -104,6 +104,8 @@ AWS_REGION=sa-east-1
 AWS_S3_BUCKET=backend-challenge-images
 LOCALSTACK_ENDPOINT=http://localhost:4566
 APP_PUBLIC_URL=http://localhost:8080
+APP_STORAGE_LOCAL_DIR=.storage
+APP_TIME_ZONE=America/Sao_Paulo
 
 JWT_SECRET=change-this-secret
 JWT_EXPIRATION=86400000
@@ -135,6 +137,14 @@ Serviços do compose:
 - `app`: API Spring Boot.
 - `db`: PostgreSQL usado pela aplicação.
 - `localstack`: serviço local compatível com S3 para upload de imagens.
+
+Volumes locais usados pelo compose:
+
+- `postgres_data`: dados do PostgreSQL.
+- `.localstack`: persistência do LocalStack/S3.
+- `.storage`: fallback local para imagens quando necessário.
+
+O container da API utiliza timezone `America/Sao_Paulo` por padrão, configurado por `TZ`, `APP_TIME_ZONE` e `JAVA_TOOL_OPTIONS`.
 
 ### Resetando o ambiente Docker
 
@@ -348,7 +358,8 @@ As seeds incluem tipos de atividade e conquistas iniciais.
 
 - O backend utiliza autenticação JWT. Com exceção de cadastro, login, Swagger e OpenAPI, os endpoints exigem token.
 - Atividades privadas exigem aprovação do criador antes do check-in.
-- O código de confirmação da atividade é retornado para o criador.
+- O código de confirmação da atividade é retornado para o criador e também para o participante que já realizou check-in.
+- Participantes rejeitados não são retornados na listagem de participantes da atividade.
 - Imagens são enviadas via `multipart/form-data`.
 - O upload local usa LocalStack como serviço compatível com S3.
 - As URLs de imagens retornadas pela API usam `APP_PUBLIC_URL` e apontam para `/images/{fileName}`.
