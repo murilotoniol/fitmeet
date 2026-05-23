@@ -5,9 +5,11 @@ import { definePreferences } from "@/api/user";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { CategoryCard } from "@/components/ui/category-card";
+import { DashboardSkeleton } from "@/components/ui/dashboard-skeleton";
 import { Modal } from "@/components/ui/modal";
 import { useSession } from "@/hooks/use-session";
 import { AppShell } from "@/layouts/app-shell";
+import { ACTIVITY_TYPE_IMAGE } from "@/utils/image-placeholders";
 import { clearPreferencesSkipped, markPreferencesSkipped } from "@/utils/preferences";
 
 import { DashboardSections } from "@/features/home/dashboard-sections";
@@ -75,7 +77,7 @@ function PreferencesPage() {
       {error ? <Alert variant="error" description={error} /> : null}
 
       {loading ? (
-        <div className="py-16 text-body text-[var(--color-text)]">Carregando atividades...</div>
+        <DashboardSkeleton />
       ) : (
         <DashboardSections
           recommendedActivities={recommendedActivities}
@@ -101,7 +103,7 @@ function PreferencesPage() {
               <CategoryCard
                 key={type.id}
                 title={type.name}
-                image={type.image}
+                image={ACTIVITY_TYPE_IMAGE}
                 selected={resolvedSelectedTypeIds.includes(type.id)}
                 onClick={() => toggleType(type.id)}
               />

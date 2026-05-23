@@ -1,6 +1,7 @@
 import { Navigate } from "react-router";
 
 import { Alert } from "@/components/ui/alert";
+import { DashboardSkeleton } from "@/components/ui/dashboard-skeleton";
 import { AppShell } from "@/layouts/app-shell";
 import { useSession } from "@/hooks/use-session";
 import { clearPreferencesSkipped, hasSkippedPreferences } from "@/utils/preferences";
@@ -32,7 +33,7 @@ function HomePage() {
       {error ? <Alert variant="error" description={error} /> : null}
 
       {loading ? (
-        <div className="py-16 text-body text-[var(--color-text)]">Carregando atividades...</div>
+        <DashboardSkeleton />
       ) : (
         <DashboardSections
           recommendedActivities={recommendedActivities}

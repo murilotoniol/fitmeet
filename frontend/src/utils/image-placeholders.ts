@@ -1,3 +1,5 @@
+import activityTypeImage from "@/assets/atividades.jpg";
+
 const ACTIVITY_PLACEHOLDER = `data:image/svg+xml;utf8,${encodeURIComponent(`
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 675">
   <rect width="1200" height="675" fill="#f2f2f2" />
@@ -26,4 +28,9 @@ const AVATAR_PLACEHOLDER = `data:image/svg+xml;utf8,${encodeURIComponent(`
 </svg>
 `)}`;
 
-export { ACTIVITY_PLACEHOLDER, AVATAR_PLACEHOLDER, CATEGORY_PLACEHOLDER };
+export {
+  ACTIVITY_PLACEHOLDER,
+  activityTypeImage as ACTIVITY_TYPE_IMAGE,
+  AVATAR_PLACEHOLDER,
+  CATEGORY_PLACEHOLDER,
+};

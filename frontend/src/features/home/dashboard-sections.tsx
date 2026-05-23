@@ -5,6 +5,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { PageSection } from "@/components/ui/page-section";
 import type { Activity, ActivityType } from "@/types";
 import { formatDateTime } from "@/utils/formatters";
+import { ACTIVITY_TYPE_IMAGE } from "@/utils/image-placeholders";
 
 import { ActivityGridSection } from "../activities/activity-grid-section";
 import { ActivityListItem } from "../activities/activity-list-item";
@@ -54,7 +55,7 @@ function DashboardSections({
             items={activityTypes.map((type) => ({
               id: type.id,
               title: type.name,
-              image: type.image,
+              image: ACTIVITY_TYPE_IMAGE,
               onClick: () => navigate(`/atividades?typeId=${type.id}`),
             }))}
           />

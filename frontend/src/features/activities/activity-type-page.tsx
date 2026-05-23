@@ -5,12 +5,15 @@ import { getActivities, getActivityTypes } from "@/api/activities";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { CategoryRow } from "@/components/ui/category-row";
+import { DashboardSkeleton } from "@/components/ui/dashboard-skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageSection } from "@/components/ui/page-section";
 import { useSession } from "@/hooks/use-session";
 import { AppShell } from "@/layouts/app-shell";
 import type { Activity, ActivityType } from "@/types";
+import { filterVisibleActivities } from "@/utils/activity-filters";
 import { formatDateTime } from "@/utils/formatters";
+import { ACTIVITY_TYPE_IMAGE } from "@/utils/image-placeholders";
 
 import { ActivityGridSection } from "./activity-grid-section";
 import { ActivityListItem } from "./activity-list-item";
@@ -65,7 +68,7 @@ function ActivityTypePage() {
         }
 
         setActivityTypes(loadedTypes);
-        setActivities([...(firstPage?.activities ?? []), ...(secondPage?.activities ?? [])]);
+        setActivities(filterVisibleActivities([...(firstPage?.activities ?? []), ...(secondPage?.activities ?? [])]));
         setNextPage(secondPage?.next ?? null);
 
         if (!selectedTypeId && resolvedTypeId) {
@@ -120,7 +123,7 @@ function ActivityTypePage() {
         typeId: selectedType.id,
       });
 
-      setActivities((current) => [...current, ...loadedPage.activities]);
+      setActivities((current) => filterVisibleActivities([...current, ...loadedPage.activities]));
       setNextPage(loadedPage.next);
     } catch (fetchError) {
       const message =
@@ -138,7 +141,7 @@ function ActivityTypePage() {
       {error ? <Alert variant="error" description={error} /> : null}
 
       {loading ? (
-        <div className="py-16 text-body text-[var(--color-text)]">Carregando atividades...</div>
+        <DashboardSkeleton />
       ) : selectedType ? (
         <div className="min-w-0 max-w-full space-y-14">
           <ActivityGridSection
@@ -168,7 +171,7 @@ function ActivityTypePage() {
                 items={otherTypes.map((type) => ({
                   id: type.id,
                   title: type.name,
-                  image: type.image,
+                  image: ACTIVITY_TYPE_IMAGE,
                   onClick: () => {
                     setSearchParams({ typeId: type.id });
                   },

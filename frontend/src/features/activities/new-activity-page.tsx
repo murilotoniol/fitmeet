@@ -8,6 +8,7 @@ import { useDashboardData } from "@/features/home/use-dashboard-data";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { CategoryCard } from "@/components/ui/category-card";
+import { DashboardSkeleton } from "@/components/ui/dashboard-skeleton";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FormSection } from "@/components/ui/form-section";
 import { ImageUploadBox } from "@/components/ui/image-upload-box";
@@ -18,6 +19,7 @@ import { SegmentedToggle } from "@/components/ui/segmented-toggle";
 import { useSession } from "@/hooks/use-session";
 import { AppShell } from "@/layouts/app-shell";
 import type { ActivityType } from "@/types";
+import { ACTIVITY_TYPE_IMAGE } from "@/utils/image-placeholders";
 
 function normalizeCoordinate(value: string) {
   return Number(value.replace(",", "."));
@@ -173,7 +175,7 @@ function NewActivityPage() {
   return (
     <AppShell>
       {dashboardData.loading ? (
-        <div className="py-16 text-body text-[var(--color-text)]">Carregando atividades...</div>
+        <DashboardSkeleton />
       ) : (
         <DashboardSections
           recommendedActivities={dashboardData.recommendedActivities}
@@ -265,7 +267,7 @@ function NewActivityPage() {
                         <CategoryCard
                           key={type.id}
                           title={type.name}
-                          image={type.image}
+                          image={ACTIVITY_TYPE_IMAGE}
                           selected={selectedTypeId === type.id}
                           onClick={() => setSelectedTypeId(type.id)}
                         />
