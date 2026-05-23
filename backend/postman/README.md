@@ -1,10 +1,10 @@
 # Postman
 
-Esta pasta contém uma collection e um environment local para facilitar a avaliação manual da API.
+Esta pasta contém uma coleção e um environment local para facilitar a avaliação manual da API.
 
 ## Arquivos
 
-- `desafio-backend.postman_collection.json`: collection com fluxos principais da API.
+- `desafio-backend.postman_collection.json`: coleção com fluxos principais da API.
 - `desafio-backend.local.postman_environment.json`: variáveis para rodar localmente em `http://localhost:8080`.
 - `assets/activity-seed.png`: imagem de exemplo usada no cadastro de atividades.
 
@@ -36,8 +36,8 @@ Execute as pastas nesta ordem:
 
 ## Observações
 
-- Execute a collection apenas depois que a API estiver rodando em `http://localhost:8080`.
-- Os usuários de teste são criados pela própria collection; eles não são inseridos por seed no banco.
+- Execute a coleção apenas depois que a API estiver rodando em `http://localhost:8080`.
+- Os usuários de teste são criados pela própria coleção; eles não são inseridos por seed no banco.
 - Os requests de cadastro podem retornar `409 Conflict` se os usuários já existirem. Nesse caso, continue o fluxo a partir dos logins.
 - Os logins salvam automaticamente os tokens no environment.
 - A criação de atividade salva automaticamente `activityId` e `confirmationCode`.

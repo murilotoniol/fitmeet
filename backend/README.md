@@ -38,7 +38,7 @@ API REST desenvolvida para o desafio técnico do bootcamp, com autenticação JW
 - Pontuação por XP, cálculo de nível e concessão de conquistas.
 - Upload de imagens para LocalStack/S3.
 - Documentação da API via Swagger.
-- Collection do Postman para facilitar a avaliação manual.
+- Coleção do Postman para facilitar a avaliação manual.
 
 ## Estrutura Principal
 
@@ -132,13 +132,13 @@ A aplicação ficará disponível em:
 http://localhost:8080
 ```
 
-Serviços do compose:
+Serviços do Docker Compose:
 
 - `app`: API Spring Boot.
 - `db`: PostgreSQL usado pela aplicação.
 - `localstack`: serviço local compatível com S3 para upload de imagens.
 
-Volumes locais usados pelo compose:
+Volumes locais usados pelo Docker Compose:
 
 - `postgres_data`: dados do PostgreSQL.
 - `.localstack`: persistência do LocalStack/S3.
@@ -309,11 +309,11 @@ O relatório exclui classes de DTO, models, enums, configurações e a classe pr
 
 A pasta `postman/` contém:
 
-- collection com os principais fluxos da API;
+- coleção com os principais fluxos da API;
 - environment local;
 - imagem de exemplo para criação de atividades.
 
-A collection cria os usuários de teste automaticamente. Por isso, o banco mantém apenas seeds estruturais, como tipos de atividade e conquistas.
+A coleção cria os usuários de teste automaticamente. Por isso, o banco mantém apenas seeds estruturais, como tipos de atividade e conquistas.
 
 Arquivos:
 
@@ -363,4 +363,4 @@ As seeds incluem tipos de atividade e conquistas iniciais.
 - Imagens são enviadas via `multipart/form-data`.
 - O upload local usa LocalStack como serviço compatível com S3.
 - As URLs de imagens retornadas pela API usam `APP_PUBLIC_URL` e apontam para `/images/{fileName}`.
-- A collection do Postman cria usuários de teste e executa um fluxo completo de atividade privada.
+- A coleção do Postman cria usuários de teste e executa um fluxo completo de atividade privada.
