@@ -12,3 +12,4 @@ desktop.ini
 *.log
 .env
 out/
+mobile/.bundle/config
