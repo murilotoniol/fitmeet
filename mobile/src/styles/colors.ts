@@ -1,0 +1,17 @@
+export const colors = {
+  border: '#E5E5E5',
+  borderFocus: '#D4D4D4',
+  title: '#171717',
+  text: '#404040',
+  placeholder: '#A1A1A1',
+  danger: '#E7000B',
+  primary500: '#00BC7D',
+  primary600: '#009966',
+  white: '#FFFFFF',
+  background: '#FCFCFC',
+  panel: '#FFFFFF',
+  divider: '#707070',
+  highlight: '#FBBC05',
+  muted: '#F9F9F9',
+  progressBg: '#D9D9D9',
+};
