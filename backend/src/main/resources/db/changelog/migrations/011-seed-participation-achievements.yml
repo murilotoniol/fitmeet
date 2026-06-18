@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: "11-seed-participation-achievements"
+      author: "muriloBesson"
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists:
+            tableName: "achievements"
+      changes:
+        - insert:
+            tableName: "achievements"
+            columns:
+              - column:
+                  name: "id"
+                  valueComputed: "gen_random_uuid()"
+              - column:
+                  name: "name"
+                  value: "Participou de 5 atividades"
+              - column:
+                  name: "criterion"
+                  value: "Realizar check-in em 5 atividades diferentes"
+        - insert:
+            tableName: "achievements"
+            columns:
+              - column:
+                  name: "id"
+                  valueComputed: "gen_random_uuid()"
+              - column:
+                  name: "name"
+                  value: "Participou de 10 atividades"
+              - column:
+                  name: "criterion"
+                  value: "Realizar check-in em 10 atividades diferentes"

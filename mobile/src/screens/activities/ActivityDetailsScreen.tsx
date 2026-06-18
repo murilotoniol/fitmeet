@@ -48,17 +48,7 @@ type ActivityDetailsScreenProps = {
   navigation: any;
   route: any;
 };
-
 const CHECK_IN_WINDOW_MS = 30 * 60 * 1000;
-
-function isCheckInWindowOpen(activity: Activity) {
-  const ts = new Date(activity.scheduledDate).getTime();
-  if (Number.isNaN(ts)) {
-    return false;
-  }
-  return Date.now() >= ts - CHECK_IN_WINDOW_MS;
-}
-
 function ActivityDetailsScreen({
   navigation,
   route,
@@ -104,12 +94,12 @@ function ActivityDetailsScreen({
   }, [activityId, user?.id]);
 
   useEffect(() => {
-    void loadData();
+    loadData().catch(() => {});
   }, [loadData]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      void loadData();
+      loadData().catch(() => {});
     });
     return unsubscribe;
   }, [navigation, loadData]);
@@ -220,7 +210,15 @@ function ActivityDetailsScreen({
 
   const isCanceled = Boolean(activity.deletedAt);
   const isCompleted = Boolean(activity.completedAt);
-  const checkInOpen = isCheckInWindowOpen(activity);
+
+  const scheduledTime = new Date(activity.scheduledDate).getTime();
+  const now = Date.now();
+  const isPastStartTime = now >= scheduledTime;
+  const isWithinCheckInWindow = now >= scheduledTime - CHECK_IN_WINDOW_MS;
+  const canManageParticipants = !isCompleted && !isCanceled && !isPastStartTime;
+  const canFinishActivity = isCreator && (isPastStartTime || isWithinCheckInWindow) && !isCompleted && !isCanceled;
+  const canEditActivity = isCreator && !isCompleted && !isCanceled && !isWithinCheckInWindow;
+
   const displayedCode =
     status === 'CHECKED_IN'
       ? activity.confirmationCode ?? checkInCode
@@ -233,7 +231,7 @@ function ActivityDetailsScreen({
           <ArrowLeft size={24} color={colors.title} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>DETALHES</Text>
-        <View style={{width: 24}} />
+        <View style={styles.spacer} />
       </View>
 
       <ScrollView
@@ -294,7 +292,7 @@ function ActivityDetailsScreen({
         {/* ── Ações do organizador ── */}
         {isCreator && !isCanceled && !isCompleted ? (
           <View style={styles.actionsSection}>
-            {!checkInOpen ? (
+            {canEditActivity && (
               <Button
                 title="Editar"
                 variant="outline"
@@ -304,7 +302,8 @@ function ActivityDetailsScreen({
                 }
                 disabled={actionLoading}
               />
-            ) : (
+            )}
+            {canFinishActivity && (
               <Button
                 title={actionLoading ? 'Encerrando...' : 'Encerrar atividade'}
                 icon={<Flag size={20} color={colors.white} />}
@@ -320,7 +319,7 @@ function ActivityDetailsScreen({
         {/* ── Ações do participante ── */}
         {!isCreator && !isCanceled && !isCompleted ? (
           <View style={styles.actionsSection}>
-            {!status && !checkInOpen ? (
+            {!status && !isWithinCheckInWindow ? (
               <Button
                 title={actionLoading ? 'Participando...' : 'Participar'}
                 onPress={() =>
@@ -328,23 +327,42 @@ function ActivityDetailsScreen({
                 }
                 loading={actionLoading}
               />
-            ) : !status && checkInOpen ? (
+            ) : !status && isWithinCheckInWindow ? (
               <View style={[styles.statusBadge, styles.statusMuted]}>
                 <Text style={styles.statusTextDark}>
                   Atividade em andamento
                 </Text>
               </View>
             ) : status === 'PENDING' ? (
-              <View style={[styles.statusBadge, styles.statusPending]}>
-                <Text style={styles.statusText}>Aguardando aprovação</Text>
+              <View style={styles.pendingSection}>
+                <View style={[styles.statusBadge, styles.statusPending, styles.statusBadgeNoMargin]}>
+                  <Text style={styles.statusText}>Aguardando aprovação</Text>
+                </View>
+                {!isPastStartTime && (
+                  <Button
+                    title={actionLoading ? 'Cancelando...' : 'Cancelar solicitação'}
+                    variant="outline"
+                    onPress={() =>
+                      runAction(() => unsubscribeFromActivity(activity.id))
+                    }
+                    loading={actionLoading}
+                    style={styles.unsubscribeButton}
+                  />
+                )}
               </View>
             ) : status === 'REJECTED' ? (
-              <View style={[styles.statusBadge, styles.statusDanger]}>
-                <Prohibit size={18} color={colors.white} />
-                <Text style={styles.statusText}>Inscrição negada</Text>
+              <View style={styles.rejectedSection}>
+                <View style={[styles.statusBadge, styles.statusDanger, styles.statusBadgeNoMargin]}>
+                  <Prohibit size={18} color={colors.white} />
+                  <Text style={styles.statusText}>Inscrição negada</Text>
+                </View>
+                <Button
+                  title="Participar"
+                  disabled={true}
+                />
               </View>
             ) : (status === 'APPROVED' || status === 'CHECKED_IN') &&
-              checkInOpen ? (
+              isWithinCheckInWindow ? (
               /* Check-in section */
               <View style={styles.checkInSection}>
                 <Text style={styles.checkInTitle}>FAÇA SEU CHECK-IN</Text>
@@ -371,7 +389,7 @@ function ActivityDetailsScreen({
                   )}
                 </View>
               </View>
-            ) : status === 'APPROVED' && !checkInOpen ? (
+            ) : status === 'APPROVED' && !isWithinCheckInWindow ? (
               <Button
                 title={
                   actionLoading ? 'Desinscrevendo...' : 'Desinscrever-se'
@@ -439,9 +457,7 @@ function ActivityDetailsScreen({
                 {isCreator &&
                 !actionLoading &&
                 activity.isPrivate &&
-                !isCompleted &&
-                !isCanceled &&
-                !checkInOpen &&
+                canManageParticipants &&
                 p.user.id !== activity.creator.id &&
                 p.approved !== true ? (
                   <View style={styles.approveActions}>
@@ -479,7 +495,7 @@ function ActivityDetailsScreen({
         </View>
 
         {/* ── Código do organizador ── */}
-        {isCreator && checkInOpen && activity.confirmationCode ? (
+        {isCreator && isWithinCheckInWindow && activity.confirmationCode ? (
           <View style={styles.codeCard}>
             <View style={styles.codeHeader}>
               <UserCheck size={24} color={colors.primary500} />
@@ -507,6 +523,10 @@ function ActivityDetailsScreen({
 }
 
 const styles = StyleSheet.create({
+  spacer: {width: 24},
+  pendingSection: {gap: 12},
+  rejectedSection: {gap: 12},
+  statusBadgeNoMargin: {marginHorizontal: 0},
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',

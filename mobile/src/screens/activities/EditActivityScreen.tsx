@@ -13,6 +13,7 @@ import {ArrowLeft, Camera} from 'phosphor-react-native';
 import {launchImageLibrary} from 'react-native-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import MapView, {Marker} from 'react-native-maps';
+import Geolocation from '@react-native-community/geolocation';
 import Toast from 'react-native-toast-message';
 import {
   deleteActivity,
@@ -58,6 +59,28 @@ function EditActivityScreen({navigation, route}: EditActivityScreenProps) {
     latitude: -23.588197,
     longitude: -46.657634,
   });
+  const [mapRegion, setMapRegion] = useState<any>(null);
+
+  useEffect(() => {
+    Geolocation.getCurrentPosition(
+      position => {
+        const {latitude, longitude} = position.coords;
+        const newCoords = {latitude, longitude};
+        if (loading) {
+          setMarker(newCoords);
+          setMapRegion({
+            ...newCoords,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          });
+        }
+      },
+      err => {
+        console.log('Error getting location in edit screen fallback:', err);
+      },
+      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000}
+    );
+  }, [loading]);
 
   useEffect(() => {
     let active = true;
@@ -87,6 +110,12 @@ function EditActivityScreen({navigation, route}: EditActivityScreenProps) {
           latitude: activity.address.latitude,
           longitude: activity.address.longitude,
         });
+        setMapRegion({
+          latitude: activity.address.latitude,
+          longitude: activity.address.longitude,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        });
 
         setTypes(activityTypes);
         const matchingType = activityTypes.find(
@@ -107,7 +136,7 @@ function EditActivityScreen({navigation, route}: EditActivityScreenProps) {
       }
     };
 
-    void load();
+    load().catch(() => {});
     return () => {
       active = false;
     };
@@ -217,7 +246,7 @@ function EditActivityScreen({navigation, route}: EditActivityScreenProps) {
             <ArrowLeft size={24} color={colors.title} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>EDITAR ATIVIDADE</Text>
-          <View style={{width: 24}} />
+          <View style={styles.spacer} />
         </View>
 
         <ScrollView
@@ -339,11 +368,14 @@ function EditActivityScreen({navigation, route}: EditActivityScreenProps) {
             <View style={styles.mapContainer}>
               <MapView
                 style={styles.map}
-                initialRegion={{
-                  ...marker,
-                  latitudeDelta: 0.01,
-                  longitudeDelta: 0.01,
-                }}
+                region={
+                  mapRegion || {
+                    ...marker,
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.01,
+                  }
+                }
+                onRegionChangeComplete={setMapRegion}
                 onPress={e => setMarker(e.nativeEvent.coordinate)}>
                 <Marker coordinate={marker} />
               </MapView>
@@ -416,6 +448,7 @@ function EditActivityScreen({navigation, route}: EditActivityScreenProps) {
 
 const styles = StyleSheet.create({
   flex: {flex: 1},
+  spacer: {width: 24},
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -13,6 +13,7 @@ import {ArrowLeft, Camera} from 'phosphor-react-native';
 import {launchImageLibrary} from 'react-native-image-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import MapView, {Marker} from 'react-native-maps';
+import Geolocation from '@react-native-community/geolocation';
 import Toast from 'react-native-toast-message';
 import {createActivity, getActivityTypes} from '../../api/activities';
 import {Button} from '../../components/ui/Button';
@@ -46,6 +47,26 @@ function NewActivityScreen({navigation}: NewActivityScreenProps) {
     latitude: -23.588197,
     longitude: -46.657634,
   });
+  const [mapRegion, setMapRegion] = useState<any>(null);
+
+  useEffect(() => {
+    Geolocation.getCurrentPosition(
+      position => {
+        const {latitude, longitude} = position.coords;
+        const newCoords = {latitude, longitude};
+        setMarker(newCoords);
+        setMapRegion({
+          ...newCoords,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        });
+      },
+      err => {
+        console.log('Error getting initial location:', err);
+      },
+      {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000}
+    );
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -66,7 +87,7 @@ function NewActivityScreen({navigation}: NewActivityScreenProps) {
       }
     };
 
-    void load();
+    load().catch(() => {});
     return () => {
       active = false;
     };
@@ -167,7 +188,7 @@ function NewActivityScreen({navigation}: NewActivityScreenProps) {
             <ArrowLeft size={24} color={colors.title} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>NOVA ATIVIDADE</Text>
-          <View style={{width: 24}} />
+          <View style={styles.spacer} />
         </View>
 
         <ScrollView
@@ -302,12 +323,15 @@ function NewActivityScreen({navigation}: NewActivityScreenProps) {
             <View style={styles.mapContainer}>
               <MapView
                 style={styles.map}
-                initialRegion={{
-                  latitude: marker.latitude,
-                  longitude: marker.longitude,
-                  latitudeDelta: 0.01,
-                  longitudeDelta: 0.01,
-                }}
+                region={
+                  mapRegion || {
+                    latitude: marker.latitude,
+                    longitude: marker.longitude,
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.01,
+                  }
+                }
+                onRegionChangeComplete={setMapRegion}
                 onPress={e =>
                   setMarker(e.nativeEvent.coordinate)
                 }>
@@ -367,6 +391,7 @@ function NewActivityScreen({navigation}: NewActivityScreenProps) {
 
 const styles = StyleSheet.create({
   flex: {flex: 1},
+  spacer: {width: 24},
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',

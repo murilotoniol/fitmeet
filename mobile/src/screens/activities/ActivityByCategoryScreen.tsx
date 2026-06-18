@@ -56,7 +56,7 @@ function ActivityByCategoryScreen({
       }
     };
 
-    void load();
+    load().catch(() => {});
     return () => {
       active = false;
     };
@@ -92,7 +92,7 @@ function ActivityByCategoryScreen({
   useEffect(() => {
     if (selectedTypeId) {
       setPage(1);
-      void loadActivities(selectedTypeId, 1);
+      loadActivities(selectedTypeId, 1).catch(() => {});
     }
   }, [selectedTypeId, loadActivities]);
 
@@ -102,7 +102,7 @@ function ActivityByCategoryScreen({
     }
     const nextPage = page + 1;
     setPage(nextPage);
-    void loadActivities(selectedTypeId, nextPage);
+    loadActivities(selectedTypeId, nextPage).catch(() => {});
   }
 
   if (loading) {
@@ -122,7 +122,7 @@ function ActivityByCategoryScreen({
           <ArrowLeft size={24} color={colors.title} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>ATIVIDADES</Text>
-        <View style={{width: 24}} />
+        <View style={styles.spacer} />
       </View>
 
       {/* Categorias horizontais */}
@@ -192,6 +192,7 @@ function ActivityByCategoryScreen({
 }
 
 const styles = StyleSheet.create({
+  spacer: {width: 24},
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',

@@ -19,7 +19,7 @@ function Avatar({uri, size = 40, style}: AvatarProps) {
         style={[
           styles.image,
           {width: size, height: size, borderRadius},
-          style,
+          style as ImageStyle,
         ]}
         resizeMode="cover"
       />
@@ -31,7 +31,7 @@ function Avatar({uri, size = 40, style}: AvatarProps) {
       style={[
         styles.placeholder,
         {width: size, height: size, borderRadius},
-        style,
+        style as ViewStyle,
       ]}>
       <User size={size * 0.5} color={colors.placeholder} weight="fill" />
     </View>

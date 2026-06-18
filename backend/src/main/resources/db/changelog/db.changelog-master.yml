@@ -19,3 +19,5 @@ databaseChangeLog:
       file: db/changelog/migrations/009-seed-activity-types-and-achievements.yml
   - include:
       file: db/changelog/migrations/010-add-address-text-fields.yml
+  - include:
+      file: db/changelog/migrations/011-seed-participation-achievements.yml

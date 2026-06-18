@@ -3,7 +3,6 @@ import type {
   ActivityPage,
   ActivityType,
   CreateActivityPayload,
-  ImageAsset,
   MessageResponse,
   Participant,
   UpdateActivityPayload,

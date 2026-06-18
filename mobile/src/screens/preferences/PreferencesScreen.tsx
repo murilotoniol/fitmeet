@@ -50,7 +50,7 @@ function PreferencesScreen({navigation, route}: PreferencesScreenProps) {
   }, []);
 
   useEffect(() => {
-    void loadData();
+    loadData().catch(() => {});
   }, [loadData]);
 
   function toggleType(typeId: string) {
@@ -138,7 +138,7 @@ function PreferencesScreen({navigation, route}: PreferencesScreenProps) {
         {!fromEdit ? (
           <TouchableOpacity
             style={styles.skipButton}
-            onPress={() => navigation.goBack()}>
+            onPress={() => navigation.navigate('Home', { skippedPreferences: true })}>
             <Text style={styles.skipText}>Pular por enquanto</Text>
           </TouchableOpacity>
         ) : null}

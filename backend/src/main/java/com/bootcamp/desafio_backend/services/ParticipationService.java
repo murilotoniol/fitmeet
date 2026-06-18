@@ -137,6 +137,7 @@ public class ParticipationService {
         activityParticipantRepository.save(participant);
         experienceService.applyCheckInExperience(participant.getUser(), activity.getCreator());
         achievementService.grantFirstCheckIn(participant.getUser());
+        achievementService.grantParticipationAchievements(participant.getUser());
 
         if ("Tecnologia".equalsIgnoreCase(activity.getType().getName())) {
             achievementService.grantFirstTechCheckIn(participant.getUser());

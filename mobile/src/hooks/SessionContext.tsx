@@ -63,7 +63,7 @@ function SessionProvider({children}: {children: ReactNode}) {
       }
     };
 
-    void restoreSession();
+    restoreSession().catch(() => {});
 
     return () => {
       active = false;

@@ -11,7 +11,7 @@ import {
 import {ArrowLeft, Camera} from 'phosphor-react-native';
 import {launchImageLibrary} from 'react-native-image-picker';
 import Toast from 'react-native-toast-message';
-import {updateAvatar, updateUser, deactivateUser} from '../../api/user';
+import {updateAvatar, updateUser, deactivateUser, getPreferences} from '../../api/user';
 import {Avatar} from '../../components/ui/Avatar';
 import {Button} from '../../components/ui/Button';
 import {ConfirmDialog} from '../../components/ui/ConfirmDialog';
@@ -20,7 +20,7 @@ import {PasswordInput} from '../../components/ui/PasswordInput';
 import {ScreenContainer} from '../../components/ui/ScreenContainer';
 import {useSession} from '../../hooks/useSession';
 import {colors} from '../../styles/colors';
-import type {ImageAsset} from '../../types';
+import type {ImageAsset, Preference} from '../../types';
 import {isValidEmail, isValidPassword} from '../../utils/validators';
 
 type EditProfileScreenProps = {
@@ -39,6 +39,33 @@ function EditProfileScreen({navigation}: EditProfileScreenProps) {
   const [deactivating, setDeactivating] = useState(false);
   const [showDeactivateDialog, setShowDeactivateDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [preferences, setPreferences] = useState<Preference[]>([]);
+
+  useEffect(() => {
+    let active = true;
+
+    const loadPrefs = async () => {
+      try {
+        const prefs = await getPreferences();
+        if (active) {
+          setPreferences(prefs);
+        }
+      } catch {
+        // silencioso
+      }
+    };
+
+    loadPrefs();
+
+    const unsubscribe = navigation.addListener('focus', () => {
+      loadPrefs();
+    });
+
+    return () => {
+      active = false;
+      unsubscribe();
+    };
+  }, [navigation]);
 
   useEffect(() => {
     if (user) {
@@ -148,7 +175,7 @@ function EditProfileScreen({navigation}: EditProfileScreenProps) {
             <ArrowLeft size={24} color={colors.title} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>EDITAR PERFIL</Text>
-          <View style={{width: 24}} />
+          <View style={styles.spacer} />
         </View>
 
         <ScrollView
@@ -204,6 +231,23 @@ function EditProfileScreen({navigation}: EditProfileScreenProps) {
             />
 
             {/* Preferências */}
+            <View>
+              <Text style={styles.fieldLabel}>Preferências selecionadas</Text>
+              {preferences.length > 0 ? (
+                <View style={styles.preferencesList}>
+                  {preferences.map(pref => (
+                    <View key={pref.typeId} style={styles.preferenceTag}>
+                      <Text style={styles.preferenceTagText}>{pref.typeName}</Text>
+                    </View>
+                  ))}
+                </View>
+              ) : (
+                <Text style={styles.noPreferencesText}>
+                  Nenhuma preferência selecionada
+                </Text>
+              )}
+            </View>
+
             <TouchableOpacity
               style={styles.prefButton}
               onPress={() =>
@@ -251,6 +295,7 @@ function EditProfileScreen({navigation}: EditProfileScreenProps) {
 
 const styles = StyleSheet.create({
   flex: {flex: 1},
+  spacer: {width: 24},
   topBar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -310,6 +355,35 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     color: colors.primary500,
+  },
+  fieldLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.title,
+    marginBottom: 6,
+  },
+  preferencesList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginVertical: 8,
+  },
+  preferenceTag: {
+    backgroundColor: colors.border,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+  },
+  preferenceTagText: {
+    fontSize: 12,
+    color: colors.title,
+    fontWeight: '500',
+  },
+  noPreferencesText: {
+    fontSize: 14,
+    color: colors.placeholder,
+    fontStyle: 'italic',
+    marginVertical: 8,
   },
   actions: {
     gap: 12,

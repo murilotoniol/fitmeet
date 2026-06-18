@@ -13,7 +13,6 @@ import {
 } from '../../api/activities';
 import {ActivityListItem} from '../../components/ui/ActivityListItem';
 import {Avatar} from '../../components/ui/Avatar';
-import {Button} from '../../components/ui/Button';
 import {EmptyState} from '../../components/ui/EmptyState';
 import {LoadingIndicator} from '../../components/ui/LoadingIndicator';
 import {ScreenContainer} from '../../components/ui/ScreenContainer';
@@ -78,12 +77,12 @@ function ProfileScreen({navigation}: ProfileScreenProps) {
   }, []);
 
   useEffect(() => {
-    void loadProfile();
+    loadProfile().catch(() => {});
   }, [loadProfile]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      void loadProfile();
+      loadProfile().catch(() => {});
     });
     return unsubscribe;
   }, [navigation, loadProfile]);

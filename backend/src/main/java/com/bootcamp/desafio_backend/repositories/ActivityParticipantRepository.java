@@ -1,5 +1,6 @@
 package com.bootcamp.desafio_backend.repositories;
 
+import com.bootcamp.desafio_backend.enums.ParticipationStatus;
 import com.bootcamp.desafio_backend.models.ActivityParticipant;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,4 +28,6 @@ public interface ActivityParticipantRepository extends JpaRepository<ActivityPar
     List<ActivityParticipant> findByActivityId(UUID activityId);
 
     Optional<ActivityParticipant> findByIdAndActivityId(UUID participantId, UUID activityId);
+
+    long countByUserIdAndStatus(UUID userId, ParticipationStatus status);
 }

@@ -22,6 +22,7 @@ import {filterVisibleActivities} from '../../utils/activity-filters';
 
 type HomeScreenProps = {
   navigation: any;
+  route: any;
 };
 
 function shuffleArray<T>(arr: T[]): T[] {
@@ -33,7 +34,7 @@ function shuffleArray<T>(arr: T[]): T[] {
   return clone;
 }
 
-function HomeScreen({navigation}: HomeScreenProps) {
+function HomeScreen({navigation, route}: HomeScreenProps) {
   const {user} = useSession();
   const [loading, setLoading] = useState(true);
   const [activityTypes, setActivityTypes] = useState<ActivityType[]>([]);
@@ -72,22 +73,23 @@ function HomeScreen({navigation}: HomeScreenProps) {
   }, []);
 
   useEffect(() => {
-    void loadData();
+    loadData().catch(() => {});
   }, [loadData]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      void loadData();
+      loadData().catch(() => {});
     });
     return unsubscribe;
   }, [navigation, loadData]);
 
   useEffect(() => {
-    if (needsPreferences && !loading) {
+    const skipped = route.params?.skippedPreferences;
+    if (needsPreferences && !loading && !skipped) {
       setNeedsPreferences(false);
       navigation.navigate('Preferences');
     }
-  }, [needsPreferences, loading, navigation]);
+  }, [needsPreferences, loading, navigation, route.params?.skippedPreferences]);
 
   const recommended = useMemo(() => {
     const prefTypeIds = new Set(preferences.map(p => p.typeId));
@@ -139,7 +141,7 @@ function HomeScreen({navigation}: HomeScreenProps) {
 
         {/* Categorias */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>CATEGORIAS</Text>
+          <Text style={[styles.sectionTitle, styles.sectionTitlePadding]}>CATEGORIAS</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -270,6 +272,8 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     color: colors.title,
     letterSpacing: 0.5,
+  },
+  sectionTitlePadding: {
     paddingHorizontal: 20,
   },
   seeMore: {
