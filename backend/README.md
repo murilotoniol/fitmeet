@@ -353,14 +353,3 @@ src/main/resources/db/changelog/db.changelog-master.yml
 ```
 
 As seeds incluem tipos de atividade e conquistas iniciais.
-
-## Observações Para Avaliação
-
-- O backend utiliza autenticação JWT. Com exceção de cadastro, login, Swagger e OpenAPI, os endpoints exigem token.
-- Atividades privadas exigem aprovação do criador antes do check-in.
-- O código de confirmação da atividade é retornado para o criador e também para o participante que já realizou check-in.
-- Participantes rejeitados não são retornados na listagem de participantes da atividade.
-- Imagens são enviadas via `multipart/form-data`.
-- O upload local usa LocalStack como serviço compatível com S3.
-- As URLs de imagens retornadas pela API usam `APP_PUBLIC_URL` e apontam para `/images/{fileName}`.
-- A coleção do Postman cria usuários de teste e executa um fluxo completo de atividade privada.
