@@ -210,36 +210,3 @@ VITE_API_URL=https://sua-api.com
 ```
 
 O arquivo `frontend/vercel.json` já possui fallback para SPA, permitindo refresh direto em rotas internas.
-
-## Checklist Manual
-
-Fluxos principais para validar antes da entrega:
-
-1. Cadastro de usuário.
-2. Login.
-3. Seleção de preferências.
-4. Home com recomendações e categorias.
-5. Criação de atividade pública.
-6. Criação de atividade privada.
-7. Edição de atividade.
-8. Cancelamento de atividade.
-9. Participação e cancelamento de inscrição.
-10. Aprovação e rejeição de participantes.
-11. Check-in com código.
-12. Encerramento de atividade.
-13. Perfil, XP e conquistas.
-14. Edição de perfil e avatar.
-15. Desativação de conta.
-16. Responsividade em mobile.
-
-## Observações Para Avaliação
-
-- O frontend não utiliza TanStack Query ou React Query.
-- O frontend usa assets locais para imagens principais e placeholders.
-- As listagens do frontend possuem defesa extra para não exibir atividades canceladas ou encerradas.
-- O backend usa timezone `America/Sao_Paulo` por padrão.
-- O backend usa Liquibase para versionamento do banco.
-- O backend usa LocalStack/S3 para imagens, com volumes locais para persistência no Docker.
-- Atividades privadas exigem aprovação antes do check-in.
-- O código de confirmação é retornado ao organizador e ao participante que já realizou check-in.
-- A collection do Postman fica em `backend/postman/`.
