@@ -1,5 +1,12 @@
 # Fitmeet - Desafio Técnico SysMap Bootcamp
 
+![Java](https://img.shields.io/badge/Java-25-orange?logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-4-brightgreen?logo=springboot&logoColor=white)
+![React](https://img.shields.io/badge/React-19-blue?logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker_Compose-2496ED?logo=docker&logoColor=white)
+
 Repositório com a implementação do Fitmeet, uma plataforma para descoberta, criação e participação em atividades. O projeto é composto por uma API REST em Spring Boot e uma aplicação web em React, integradas por autenticação JWT e fluxos completos de preferências, atividades, participantes, check-in, XP e conquistas.
 
 ## Projetos
